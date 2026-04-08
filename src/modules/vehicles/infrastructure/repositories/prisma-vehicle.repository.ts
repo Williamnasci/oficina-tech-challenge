@@ -1,4 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+    NotFoundException,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
 import { Vehicle } from '../../domain/entities/vehicle.entity';
 import { VehicleRepository } from '../../domain/repositories/vehicle.repository';
@@ -9,18 +14,32 @@ export class PrismaVehicleRepository implements VehicleRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(vehicle: Vehicle): Promise<void> {
-        await this.prisma.vehicle.create({
-            data: {
-                id: vehicle.id,
-                customerId: vehicle.customerId,
-                licensePlate: vehicle.licensePlate.value,
-                brand: vehicle.brand,
-                model: vehicle.model,
-                year: vehicle.year,
-                createdAt: vehicle.createdAt,
-                updatedAt: vehicle.updatedAt,
-            },
-        });
+        try {
+            await this.prisma.vehicle.create({
+                data: {
+                    id: vehicle.id,
+                    customerId: vehicle.customerId,
+                    licensePlate: vehicle.licensePlate.value,
+                    brand: vehicle.brand,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    createdAt: vehicle.createdAt,
+                    updatedAt: vehicle.updatedAt,
+                },
+            });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('License plate already registered.');
+                }
+
+                if (error.code === 'P2003') {
+                    throw new NotFoundException('Customer not found.');
+                }
+            }
+
+            throw error;
+        }
     }
 
     async findById(id: string): Promise<Vehicle | null> {

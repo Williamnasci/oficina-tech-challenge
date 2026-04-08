@@ -3,6 +3,8 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AppModule } from './app.module';
+import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter';
+import { PrismaExceptionFilter } from './shared/infrastructure/filters/prisma-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -15,6 +17,11 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       transform: true,
     }),
+  );
+
+  app.useGlobalFilters(
+    new DomainExceptionFilter(),
+    new PrismaExceptionFilter(),
   );
 
   const config = new DocumentBuilder()

@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+    ConflictException,
+    Injectable,
+} from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { Customer } from '../../domain/entities/customer.entity';
 import { CustomerRepository } from '../../domain/repositories/customer.repository';
 import { CustomerDocument } from '../../domain/value-objects/customer-document.value-object';
@@ -9,18 +13,28 @@ export class PrismaCustomerRepository implements CustomerRepository {
     constructor(private readonly prisma: PrismaService) { }
 
     async create(customer: Customer): Promise<void> {
-        await this.prisma.customer.create({
-            data: {
-                id: customer.id,
-                name: customer.name,
-                documentType: customer.document.type,
-                document: customer.document.value,
-                phone: customer.phone,
-                email: customer.email,
-                createdAt: customer.createdAt,
-                updatedAt: customer.updatedAt,
-            },
-        });
+        try {
+            await this.prisma.customer.create({
+                data: {
+                    id: customer.id,
+                    name: customer.name,
+                    documentType: customer.document.type,
+                    document: customer.document.value,
+                    phone: customer.phone,
+                    email: customer.email,
+                    createdAt: customer.createdAt,
+                    updatedAt: customer.updatedAt,
+                },
+            });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2002') {
+                    throw new ConflictException('Document already registered.');
+                }
+            }
+
+            throw error;
+        }
     }
 
     async findById(id: string): Promise<Customer | null> {

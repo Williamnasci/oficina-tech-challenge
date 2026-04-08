@@ -9,10 +9,13 @@ import { StartServiceOrderExecutionUseCase } from './application/use-cases/start
 import { ServiceOrderRepository } from './domain/repositories/service-order.repository';
 import { PrismaServiceOrderRepository } from './infrastructure/repositories/prisma-service-order.repository';
 import { ServiceOrdersController } from './interfaces/http/controllers/service-orders.controller';
+import { AddServiceToServiceOrderUseCase } from './application/use-cases/add-service-to-service-order.use-case';
+import { AddStockItemToServiceOrderUseCase } from './application/use-cases/add-stock-item-to-service-order.use-case';
 
 @Module({
     controllers: [ServiceOrdersController],
     providers: [
+        AddServiceToServiceOrderUseCase,
         CreateServiceOrderUseCase,
         GetServiceOrderUseCase,
         RegisterDiagnosisUseCase,
@@ -20,6 +23,7 @@ import { ServiceOrdersController } from './interfaces/http/controllers/service-o
         StartServiceOrderExecutionUseCase,
         FinishServiceOrderUseCase,
         DeliverServiceOrderUseCase,
+        AddStockItemToServiceOrderUseCase,
         {
             provide: ServiceOrderRepository,
             useClass: PrismaServiceOrderRepository,
