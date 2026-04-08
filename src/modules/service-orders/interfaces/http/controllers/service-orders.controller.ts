@@ -7,6 +7,7 @@ import {
     Param,
     Patch,
     Post,
+    UseGuards
 } from '@nestjs/common';
 import {
     ApiBody,
@@ -14,6 +15,7 @@ import {
     ApiParam,
     ApiResponse,
     ApiTags,
+    ApiBearerAuth
 } from '@nestjs/swagger';
 import { CreateServiceOrderDto } from '../../../application/dto/create-service-order.dto';
 import { RegisterDiagnosisDto } from '../../../application/dto/register-diagnosis.dto';
@@ -29,7 +31,7 @@ import { AddServiceToServiceOrderUseCase } from '../../../application/use-cases/
 import { AddStockItemToServiceOrderDto } from '../../../application/dto/add-stock-item-to-service-order.dto';
 import { AddStockItemToServiceOrderUseCase } from '../../../application/use-cases/add-stock-item-to-service-order.use-case';
 import { ServiceOrderDetailsResponseDto } from '../../../application/dto/service-order-details-response.dto';
-
+import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 @ApiTags('service-orders')
 @Controller('service-orders')
 export class ServiceOrdersController {
@@ -46,6 +48,8 @@ export class ServiceOrdersController {
     ) { }
 
     @Post()
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.CREATED)
     @ApiOperation({ summary: 'Create a new service order' })
     @ApiBody({ type: CreateServiceOrderDto })
@@ -72,6 +76,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/diagnosis')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Register diagnosis for a service order' })
     @ApiParam({
@@ -87,6 +93,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/send-budget')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Send service order budget for customer approval' })
     @ApiParam({
@@ -101,6 +109,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/start-execution')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Start service order execution' })
     @ApiParam({
@@ -114,6 +124,8 @@ export class ServiceOrdersController {
         await this.startServiceOrderExecutionUseCase.execute(id);
     }
     @Post(':id/services')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Add service to service order' })
     @ApiParam({
@@ -132,6 +144,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/finish')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Finish a service order' })
     @ApiParam({
@@ -146,6 +160,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/deliver')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Deliver a finished service order' })
     @ApiParam({
@@ -159,6 +175,8 @@ export class ServiceOrdersController {
         await this.deliverServiceOrderUseCase.execute(id);
     }
     @Post(':id/stock-items')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Add stock item to service order and decrease stock' })
     @ApiParam({

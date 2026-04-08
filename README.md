@@ -254,7 +254,17 @@ npx prisma migrate dev
 
 ---
 
-## Execução
+## Execução via Docker (Recomendado)
+
+O projeto conta com o `Dockerfile` e `docker-compose.yml` para facilitar a execução local, orquestrando o banco e a API.
+
+```bash
+docker-compose up -d --build
+```
+
+---
+
+## Execução Local (NPM)
 
 Rodar aplicação em desenvolvimento:
 
@@ -267,6 +277,34 @@ Aplicação disponível em:
 ```text
 http://localhost:3000
 ```
+
+---
+
+## Autenticação (JWT)
+
+A API possui endpoints administrativos protegidos por **Bearer Token (JWT)**, garantindo os requisitos de segurança.
+
+Para efetuar chamadas (inclusive no Swagger):
+1. Acesse `POST /auth/login`
+2. Utilize o payload padrão de admin:
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
+3. Copie o `access_token`.
+4. No Swagger, clique em **Authorize** no topo da página e cole o token.
+
+---
+
+## Entregáveis do Tech Challenge (Fase 1)
+
+Os itens cobrados além do código-fonte (este repositório) estão mapeados abaixo:
+
+* **Vídeo Demonstrativo (Até 15min):** [Adicionar Link do Vídeo Aqui]
+* **Documentação DDD (Event Storming e Fluxos):** [Adicionar Link do Miro Aqui]
+* **Relatório de Análise de Vulnerabilidades:** [Sua ferramenta aqui - SonarQube/Trivy]
 
 ---
 

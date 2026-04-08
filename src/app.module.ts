@@ -6,7 +6,7 @@ import { ServiceOrdersModule } from './modules/service-orders/service-orders.mod
 import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { StockItemsModule } from './modules/stock-items/stock-items.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
-
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -16,7 +16,8 @@ import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.
     VehiclesModule,
     ServiceOrdersModule,
     StockItemsModule,
-    ServiceCatalogModule
+    ServiceCatalogModule,
+    AuthModule
   ],
 })
 export class AppModule { }

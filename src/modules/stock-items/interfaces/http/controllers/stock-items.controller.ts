@@ -8,6 +8,7 @@ import {
     Param,
     Patch,
     Post,
+    UseGuards
 } from '@nestjs/common';
 import {
     ApiBody,
@@ -15,6 +16,7 @@ import {
     ApiParam,
     ApiResponse,
     ApiTags,
+    ApiBearerAuth
 } from '@nestjs/swagger';
 import { CreateStockItemDto } from '../../../application/dto/create-stock-item.dto';
 import { StockItemResponseDto } from '../../../application/dto/stock-item-response.dto';
@@ -24,8 +26,11 @@ import { DeleteStockItemUseCase } from '../../../application/use-cases/delete-st
 import { GetStockItemUseCase } from '../../../application/use-cases/get-stock-item.use-case';
 import { ListStockItemsUseCase } from '../../../application/use-cases/list-stock-items.use-case';
 import { UpdateStockItemUseCase } from '../../../application/use-cases/update-stock-item.use-case';
+import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 
 @ApiTags('stock-items')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('stock-items')
 export class StockItemsController {
     constructor(

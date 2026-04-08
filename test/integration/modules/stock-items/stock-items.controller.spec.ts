@@ -7,6 +7,7 @@ import { GetStockItemUseCase } from '../../../../src/modules/stock-items/applica
 import { ListStockItemsUseCase } from '../../../../src/modules/stock-items/application/use-cases/list-stock-items.use-case';
 import { UpdateStockItemUseCase } from '../../../../src/modules/stock-items/application/use-cases/update-stock-item.use-case';
 import { DeleteStockItemUseCase } from '../../../../src/modules/stock-items/application/use-cases/delete-stock-item.use-case';
+import { JwtAuthGuard } from '../../../../src/modules/auth/jwt-auth.guard';
 
 describe('StockItemsController (integration)', () => {
     let app: INestApplication;
@@ -48,7 +49,10 @@ describe('StockItemsController (integration)', () => {
                     useValue: { execute: jest.fn().mockResolvedValue(undefined) },
                 },
             ],
-        }).compile();
+        })
+        .overrideGuard(JwtAuthGuard)
+        .useValue({ canActivate: () => true })
+        .compile();
 
         app = moduleRef.createNestApplication();
         app.useGlobalPipes(new ValidationPipe({

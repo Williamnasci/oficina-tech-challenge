@@ -63,4 +63,32 @@ describe('ServiceOrder Entity', () => {
         expect(serviceOrder.status).toBe(ServiceOrderStatus.FINISHED);
         expect(serviceOrder.finishedAt).toBeTruthy();
     });
+
+    it('should throw when sending budget without diagnosis', () => {
+        const serviceOrder = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+        expect(() => serviceOrder.sendBudgetForApproval()).toThrow(DomainException);
+    });
+
+    it('should send budget for approval', () => {
+        const serviceOrder = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+        serviceOrder.registerDiagnosis('issue');
+        serviceOrder.sendBudgetForApproval();
+        expect(serviceOrder.status).toBe(ServiceOrderStatus.WAITING_APPROVAL);
+    });
+
+    it('should throw when finishing without IN_PROGRESS', () => {
+        const serviceOrder = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+        expect(() => serviceOrder.finish()).toThrow(DomainException);
+    });
+
+    it('should throw when delivering without FINISHED', () => {
+        const serviceOrder = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+        expect(() => serviceOrder.deliver()).toThrow(DomainException);
+    });
+
+    it('should deliver when FINISHED', () => {
+        const serviceOrder = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1', status: ServiceOrderStatus.FINISHED });
+        serviceOrder.deliver();
+        expect(serviceOrder.status).toBe(ServiceOrderStatus.DELIVERED);
+    });
 });

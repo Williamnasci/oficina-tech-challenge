@@ -8,6 +8,7 @@ import {
     Patch,
     Post,
     Delete,
+    UseGuards
 } from '@nestjs/common';
 import {
     ApiBody,
@@ -15,6 +16,7 @@ import {
     ApiParam,
     ApiResponse,
     ApiTags,
+    ApiBearerAuth
 } from '@nestjs/swagger';
 import { CreateServiceCatalogDto } from '../../../application/dto/create-service-catalog.dto';
 import { ServiceCatalogResponseDto } from '../../../application/dto/service-catalog-response.dto';
@@ -24,8 +26,11 @@ import { GetServiceCatalogUseCase } from '../../../application/use-cases/get-ser
 import { ListServiceCatalogUseCase } from '../../../application/use-cases/list-service-catalog.use-case';
 import { UpdateServiceCatalogUseCase } from '../../../application/use-cases/update-service-catalog.use-case';
 import { DeleteServiceCatalogUseCase } from '../../../application/use-cases/delete-service-catalog.use-case';
+import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 
 @ApiTags('service-catalog')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('service-catalog')
 export class ServiceCatalogController {
     constructor(

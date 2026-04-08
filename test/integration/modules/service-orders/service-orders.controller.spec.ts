@@ -11,6 +11,7 @@ import { FinishServiceOrderUseCase } from '../../../../src/modules/service-order
 import { DeliverServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/deliver-service-order.use-case';
 import { AddServiceToServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/add-service-to-service-order.use-case';
 import { AddStockItemToServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/add-stock-item-to-service-order.use-case';
+import { JwtAuthGuard } from '../../../../src/modules/auth/jwt-auth.guard';
 
 describe('ServiceOrdersController (integration)', () => {
     let app: INestApplication;
@@ -67,7 +68,10 @@ describe('ServiceOrdersController (integration)', () => {
                 { provide: AddServiceToServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 { provide: AddStockItemToServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
             ],
-        }).compile();
+        })
+        .overrideGuard(JwtAuthGuard)
+        .useValue({ canActivate: () => true })
+        .compile();
 
         app = moduleRef.createNestApplication();
         app.useGlobalPipes(new ValidationPipe({

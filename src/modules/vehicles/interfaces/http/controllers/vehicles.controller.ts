@@ -1,9 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
-import { ApiBody, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, HttpCode, HttpStatus, Post, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiResponse, ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { CreateVehicleDto } from '../../../application/dto/create-vehicle.dto';
 import { CreateVehicleUseCase } from '../../../application/use-cases/create-vehicle.use-case';
+import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 
 @ApiTags('vehicles')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('vehicles')
 export class VehiclesController {
     constructor(private readonly createVehicleUseCase: CreateVehicleUseCase) { }
