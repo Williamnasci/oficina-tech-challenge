@@ -38,8 +38,9 @@ export class PrismaServiceCatalogRepository implements ServiceCatalogRepository 
         });
     }
 
-    async findAll(): Promise<ServiceCatalog[]> {
+    async findAll(onlyActive = true): Promise<ServiceCatalog[]> {
         const data = await this.prisma.serviceCatalog.findMany({
+            where: onlyActive ? { isActive: true } : undefined,
             orderBy: { createdAt: 'desc' },
         });
 

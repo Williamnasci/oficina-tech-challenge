@@ -4,7 +4,7 @@
 
 Este projeto consiste no desenvolvimento do back-end de um sistema integrado para gestão de oficinas mecânicas, como parte do Tech Challenge da pós-graduação em Arquitetura de Software.
 
-A aplicação tem como objetivo centralizar e organizar o fluxo de atendimento de clientes, controle de veículos, execução de serviços e gestão de ordens de serviço, promovendo maior eficiência operacional e rastreabilidade das atividades realizadas.
+A aplicação foi construída para centralizar e organizar o fluxo de atendimento da oficina, contemplando cadastro de clientes, veículos, ordens de serviço, catálogo de serviços, itens de estoque e composição do orçamento.
 
 ---
 
@@ -12,29 +12,31 @@ A aplicação tem como objetivo centralizar e organizar o fluxo de atendimento d
 
 O sistema foi projetado para atender às seguintes necessidades:
 
-* Cadastro e gestão de clientes
-* Cadastro e gestão de veículos
-* Criação e acompanhamento de ordens de serviço
-* Registro de diagnóstico técnico
-* Controle do ciclo de vida da ordem de serviço
-* Gestão de serviços prestados
-* Gestão de peças e insumos
-* Controle de estoque
-* Composição detalhada de orçamento
+- Cadastro e gestão de clientes
+- Cadastro e gestão de veículos
+- Criação e acompanhamento de ordens de serviço
+- Registro de diagnóstico técnico
+- Controle do ciclo de vida da ordem de serviço
+- Inclusão de serviços na ordem de serviço
+- Inclusão de peças e insumos na ordem de serviço
+- Controle de estoque
+- Composição detalhada do orçamento
 
 ---
 
 ## Tecnologias Utilizadas
 
-* Node.js
-* TypeScript
-* NestJS
-* Prisma ORM
-* PostgreSQL
-* Swagger (OpenAPI)
-* Helmet
-* class-validator
-* class-transformer
+- Node.js
+- TypeScript
+- NestJS
+- Prisma ORM
+- PostgreSQL
+- Swagger (OpenAPI)
+- Helmet
+- class-validator
+- class-transformer
+- Jest
+- Supertest
 
 ---
 
@@ -42,74 +44,62 @@ O sistema foi projetado para atender às seguintes necessidades:
 
 ### Banco de Dados — PostgreSQL
 
-O PostgreSQL foi escolhido como banco de dados relacional devido às seguintes características:
+O PostgreSQL foi escolhido como banco de dados relacional devido a:
 
-* Forte suporte a integridade referencial
-* Confiabilidade e consistência transacional (ACID)
-* Excelente adequação para modelagem relacional complexa
-* Ampla compatibilidade com ORMs modernos (como Prisma)
-* Escalabilidade e robustez para aplicações reais
-
-Dado que o domínio do problema envolve múltiplas entidades com forte relacionamento (clientes, veículos, ordens de serviço, serviços e peças), a abordagem relacional se mostrou a mais adequada.
-
----
+- forte suporte a integridade referencial
+- confiabilidade e consistência transacional
+- adequação ao domínio com entidades fortemente relacionadas
+- robustez para aplicações reais
+- boa integração com Prisma
 
 ### ORM — Prisma
 
-O Prisma foi utilizado como ORM devido a:
+O Prisma foi adotado por:
 
-* Facilidade de integração com TypeScript
-* Tipagem forte e geração automática de client
-* Sistema de migrations versionadas
-* Clareza na definição do schema
-* Redução de complexidade na camada de persistência
-
----
+- tipagem forte com TypeScript
+- geração automática de client
+- migrations versionadas
+- clareza na modelagem do schema
+- produtividade na camada de persistência
 
 ### Framework — NestJS
 
-O NestJS foi adotado por:
+O NestJS foi escolhido por:
 
-* Estrutura modular e organizada
-* Suporte nativo a injeção de dependência
-* Facilidade de aplicação de boas práticas arquiteturais
-* Integração com validação, interceptors e middlewares
-* Aderência a princípios de Clean Architecture e DDD
+- estrutura modular
+- suporte nativo a injeção de dependência
+- facilidade para aplicar boas práticas arquiteturais
+- integração com validação e Swagger
+- boa aderência à separação em camadas e DDD
 
 ---
 
 ## Arquitetura do Sistema
 
-O projeto segue uma arquitetura em camadas inspirada em Domain-Driven Design (DDD), com separação clara de responsabilidades.
+O projeto foi organizado em camadas inspiradas em Domain-Driven Design (DDD):
 
-### Camadas
+- **domain**
+  - entidades
+  - enums
+  - regras de negócio
+  - contratos de repositório
 
-* **Domain**
+- **application**
+  - casos de uso
+  - DTOs
+  - mappers
 
-  * Entidades
-  * Enums
-  * Regras de negócio
-  * Contratos de repositório
+- **interfaces/http**
+  - controllers HTTP
 
-* **Application**
+- **infrastructure**
+  - implementações de repositórios
+  - integração com Prisma
 
-  * Casos de uso
-  * DTOs
-  * Mappers
-
-* **Interfaces (HTTP)**
-
-  * Controllers
-  * Entrada e saída da API
-
-* **Infrastructure**
-
-  * Implementação de repositórios
-  * Integração com banco de dados (Prisma)
-
-* **Shared**
-
-  * Componentes reutilizáveis (ex: PrismaService)
+- **shared**
+  - componentes compartilhados
+  - tratamento de exceções
+  - PrismaService
 
 ---
 
@@ -122,18 +112,22 @@ src/
 ├── modules/
 │   ├── customers/
 │   ├── vehicles/
-│   └── service-orders/
+│   ├── service-orders/
+│   ├── stock-items/
+│   └── service-catalog/
 ├── shared/
 │   └── infrastructure/
-│       └── prisma/
-└── prisma/
+│       ├── prisma/
+│       └── filters/
+├── prisma/
+└── test/
 ```
 
 ---
 
 ## Modelagem do Banco de Dados
 
-O sistema possui persistência relacional com as seguintes entidades principais:
+A aplicação possui persistência relacional para as seguintes entidades:
 
 * Customer
 * Vehicle
@@ -143,34 +137,69 @@ O sistema possui persistência relacional com as seguintes entidades principais:
 * ServiceOrderService
 * ServiceOrderStockItem
 
-### Características da Modelagem
+### Características da modelagem
 
-* Relacionamento entre cliente, veículo e ordem de serviço
-* Catálogo de serviços com preço base
-* Controle de estoque de peças e insumos
-* Registro detalhado dos itens associados à ordem de serviço
-* Cálculo de valores totais baseado na composição da OS
+* relacionamento entre cliente, veículo e ordem de serviço
+* catálogo de serviços com preço base
+* catálogo de peças e insumos com estoque
+* composição detalhada da ordem de serviço
+* cálculo de totais por serviços e itens
+* baixa de estoque ao adicionar peça na ordem
 
 ---
 
 ## Funcionalidades Implementadas
 
-### Ordens de Serviço
+### Customers
 
-* Criar ordem de serviço
-* Buscar ordem de serviço por ID
-* Registrar diagnóstico
-* Enviar orçamento para aprovação
-* Iniciar execução
-* Finalizar ordem
-* Entregar veículo
+* criar cliente
+* buscar cliente
 
-### Regras de Negócio
+### Vehicles
 
-* Não é possível enviar orçamento sem diagnóstico
-* Não é possível iniciar execução sem aprovação
-* Não é possível finalizar sem estar em execução
-* Não é possível entregar sem finalizar
+* criar veículo
+* buscar veículo
+* buscar por placa
+
+### Service Orders
+
+* criar ordem de serviço
+* buscar ordem de serviço por ID
+* registrar diagnóstico
+* enviar orçamento para aprovação
+* iniciar execução
+* finalizar ordem
+* entregar veículo
+* adicionar serviço à ordem
+* adicionar peça/insumo à ordem
+* visualizar ordem detalhada com composição de itens
+
+### Stock Items
+
+* criar item de estoque
+* listar itens ativos
+* buscar item por ID
+* atualizar item
+* excluir logicamente (inativar)
+
+### Service Catalog
+
+* criar serviço
+* listar serviços ativos
+* buscar serviço por ID
+* atualizar serviço
+* excluir logicamente (inativar)
+
+---
+
+## Regras de Negócio
+
+* não é possível enviar orçamento sem diagnóstico
+* não é possível iniciar execução sem aprovação
+* não é possível finalizar sem estar em execução
+* não é possível entregar sem finalizar
+* não é possível adicionar item sem estoque suficiente
+* exclusão de serviços e itens foi implementada como exclusão lógica (`isActive = false`)
 
 ---
 
@@ -182,8 +211,6 @@ O sistema possui persistência relacional com as seguintes entidades principais:
 * PostgreSQL instalado
 * npm instalado
 
----
-
 ### Banco de Dados
 
 Criar o banco localmente:
@@ -192,8 +219,6 @@ Criar o banco localmente:
 CREATE DATABASE oficina_db;
 ```
 
----
-
 ### Variáveis de Ambiente
 
 Criar um arquivo `.env` na raiz do projeto:
@@ -201,6 +226,8 @@ Criar um arquivo `.env` na raiz do projeto:
 ```env
 DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5433/oficina_db?schema=public"
 PORT=3000
+JWT_SECRET=supersecretkey
+JWT_EXPIRES_IN=1d
 ```
 
 ---
@@ -229,15 +256,15 @@ npx prisma migrate dev
 
 ## Execução
 
-Rodar aplicação em ambiente de desenvolvimento:
+Rodar aplicação em desenvolvimento:
 
 ```bash
 npm run start:dev
 ```
 
-A aplicação estará disponível em:
+Aplicação disponível em:
 
-```
+```text
 http://localhost:3000
 ```
 
@@ -245,28 +272,41 @@ http://localhost:3000
 
 ## Documentação da API
 
-A documentação da API está disponível via Swagger:
+Swagger disponível em:
 
-```
+```text
 http://localhost:3000/docs
 ```
 
 ---
 
-## Status do Projeto
+## Testes Automatizados
 
-O projeto encontra-se em evolução contínua, com expansão das funcionalidades relacionadas a:
+Rodar todos os testes:
 
-* composição da ordem de serviço
-* controle de estoque
-* integração entre serviços e peças
-* melhoria da camada de aplicação
+```bash
+npm test
+```
+
+Rodar em modo watch:
+
+```bash
+npm run test:watch
+```
+
+Gerar cobertura:
+
+```bash
+npm run test:cov
+```
+
+O projeto possui testes unitários e de integração cobrindo regras de domínio e endpoints principais.
 
 ---
 
-## Considerações Finais
+## Status do Projeto
 
-A solução proposta atende aos requisitos do desafio ao fornecer uma base estruturada, escalável e alinhada com boas práticas de arquitetura de software, garantindo separação de responsabilidades, manutenibilidade e evolução contínua do sistema.
+Projeto em evolução contínua, com MVP funcional cobrindo os principais requisitos do desafio.
 
 ---
 
