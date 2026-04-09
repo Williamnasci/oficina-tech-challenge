@@ -1,0 +1,40 @@
+
+Report Summary
+
+┌───────────────────┬──────┬─────────────────┬─────────┐
+│      Target       │ Type │ Vulnerabilities │ Secrets │
+├───────────────────┼──────┼─────────────────┼─────────┤
+│ package-lock.json │ npm  │        5        │    -    │
+└───────────────────┴──────┴─────────────────┴─────────┘
+Legend:
+- '-': Not scanned
+- '0': Clean (no security findings detected)
+
+
+package-lock.json (npm)
+=======================
+Total: 5 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 0)
+
+┌───────────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
+│      Library      │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                             │
+├───────────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ @hono/node-server │ CVE-2026-39406 │ MEDIUM   │ fixed  │ 1.19.11           │ 1.19.13       │ @hono/node-server: Middleware bypass via repeated slashes in │
+│                   │                │          │        │                   │               │ serveStatic                                                  │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-39406                   │
+├───────────────────┼────────────────┼──────────┤        ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ lodash            │ CVE-2026-4800  │ HIGH     │        │ 4.17.23           │ 4.18.0        │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                   │                │          │        │                   │               │ in template imports                                          │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                   ├────────────────┼──────────┤        │                   │               ├──────────────────────────────────────────────────────────────┤
+│                   │ CVE-2026-2950  │ MEDIUM   │        │                   │               │ Impact: Lodash versions 4.17.23 and earlier are vulnerable   │
+│                   │                │          │        │                   │               │ to prototy ......                                            │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+├───────────────────┼────────────────┼──────────┤        ├───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ path-to-regexp    │ CVE-2026-4926  │ HIGH     │        │ 8.3.0             │ 8.4.0         │ path-to-regexp: path-to-regexp: Denial of Service via        │
+│                   │                │          │        │                   │               │ crafted regular expressions                                  │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-4926                    │
+│                   ├────────────────┼──────────┤        │                   │               ├──────────────────────────────────────────────────────────────┤
+│                   │ CVE-2026-4923  │ MEDIUM   │        │                   │               │ path-to-regexp: path-to-regexp: Denial of Service via        │
+│                   │                │          │        │                   │               │ specially crafted paths with multiple wildcards...           │
+│                   │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-4923                    │
+└───────────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘

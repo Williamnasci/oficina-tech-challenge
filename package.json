@@ -17,7 +17,11 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "scan:vuln": "docker run --rm -v \"%cd%\":/project ghcr.io/aquasecurity/trivy fs /project",
+    "scan:vuln:report": "docker run --rm -v \"%cd%\":/project ghcr.io/aquasecurity/trivy fs --format table -o /project/trivy-report.txt /project",
+    "scan:vuln:json": "docker run --rm -v \"%cd%\":/project ghcr.io/aquasecurity/trivy fs --format json -o /project/trivy-report.json /project",
+    "scan:image": "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock ghcr.io/aquasecurity/trivy image app-local"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
