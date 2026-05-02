@@ -5,24 +5,24 @@
 ![NestJS](https://img.shields.io/badge/NestJS-10-red)
 ![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
 
-## Descricao do Projeto
+## Descrição do Projeto
 
-Sistema back-end para gestao de oficinas mecanicas, desenvolvido como entrega do **Tech Challenge Fase 1** da pos-graduacao em Arquitetura de Software pela FIAP.
+Sistema back-end para gestão de oficinas mecânicas, desenvolvido como entrega do **Tech Challenge Fase 1** da pós-graduação em Arquitetura de Software pela FIAP.
 
-A aplicacao centraliza o fluxo operacional de uma oficina, contemplando cadastro de clientes, veiculos, ordens de servico, catalogo de servicos, controle de estoque de pecas/insumos e orcamentos dinamicos com maquina de estado completa.
+A aplicação centraliza o fluxo operacional de uma oficina, contemplando cadastro de clientes, veículos, ordens de serviço, catálogo de serviços, controle de estoque de peças/insumos e orçamentos dinâmicos com máquina de estado completa.
 
 ---
 
 ## Objetivo
 
-O sistema foi arquitetado para atender as seguintes necessidades de negocio:
+O sistema foi arquitetado para atender as seguintes necessidades de negócio:
 
-- Cadastro e gestao unificada de clientes (CPF/CNPJ) e veiculos
-- Criacao e acompanhamento de ordens de servico com maquina de estado
-- Registro de diagnostico tecnico
-- Inclusao e calculo automatico de servicos prestados
-- Precificacao e consumo real de pecas e insumos com baixa de estoque
-- Composicao detalhada de orcamento com fluxo de aprovacao
+- Cadastro e gestão unificada de clientes (CPF/CNPJ) e veículos
+- Criação e acompanhamento de ordens de serviço com máquina de estado
+- Registro de diagnóstico técnico
+- Inclusão e cálculo automático de serviços prestados
+- Precificação e consumo real de peças e insumos com baixa de estoque
+- Composição detalhada de orçamento com fluxo de aprovação
 
 ---
 
@@ -30,87 +30,87 @@ O sistema foi arquitetado para atender as seguintes necessidades de negocio:
 
 ### Customers
 
-- Cadastro com validacao algoritmica de CPF e CNPJ
+- Cadastro com validação algorítmica de CPF e CNPJ
 - Consulta por ID ou por documento (CPF/CNPJ)
-- Listagem completa, atualizacao parcial e exclusao logica (soft delete)
+- Listagem completa, atualização parcial e exclusão lógica (soft delete)
 
 ### Vehicles
 
-- Cadastro com validacao de placa (formato antigo e Mercosul)
-- Vinculo obrigatorio com cliente existente
-- Listagem, atualizacao parcial e exclusao logica
+- Cadastro com validação de placa (formato antigo e Mercosul)
+- Vínculo obrigatório com cliente existente
+- Listagem, atualização parcial e exclusão lógica
 
 ### Service Orders
 
-- Criacao vinculada a cliente e veiculo ativos
-- Registro de diagnostico tecnico
-- Adicao de servicos do catalogo e pecas do estoque
-- Calculo automatico de orcamento
-- Fluxo completo com maquina de estado:
+- Criação vinculada a cliente e veículo ativos
+- Registro de diagnóstico técnico
+- Adição de serviços do catálogo e peças do estoque
+- Cálculo automático de orçamento
+- Fluxo completo com máquina de estado:
 
 ```
 RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
 ```
 
-- Aprovacao de orcamento e consulta por CPF/CNPJ do cliente
+- Aprovação de orçamento e consulta por CPF/CNPJ do cliente
 
 ### Stock Items
 
-- Cadastro de pecas e insumos com SKU unico
-- Controle de quantidade em estoque com baixa automatica ao vincular a OS
-- Listagem, atualizacao e exclusao logica
+- Cadastro de peças e insumos com SKU único
+- Controle de quantidade em estoque com baixa automática ao vincular a OS
+- Listagem, atualização e exclusão lógica
 
 ### Service Catalog
 
-- Cadastro de servicos com nome, descricao e preco
-- Listagem, atualizacao e exclusao logica
+- Cadastro de serviços com nome, descrição e preço
+- Listagem, atualização e exclusão lógica
 
 ---
 
 ## Tecnologias Utilizadas
 
-| Tecnologia | Funcao |
+| Tecnologia | Função |
 |------------|--------|
-| **Node.js + TypeScript** | Runtime e tipagem estatica |
+| **Node.js + TypeScript** | Runtime e tipagem estática |
 | **NestJS** | Framework principal com IoC nativo |
-| **Prisma ORM** | Camada de persistencia type-safe |
+| **Prisma ORM** | Camada de persistência type-safe |
 | **PostgreSQL** | Banco de dados relacional |
-| **Swagger (OpenAPI)** | Documentacao automatica da API |
+| **Swagger (OpenAPI)** | Documentação automática da API |
 | **Helmet** | Hardening de headers HTTP |
-| **class-validator / class-transformer** | Validacao de entrada via DTOs |
-| **Jest + Supertest** | Testes unitarios e de integracao |
-| **Docker + Docker Compose** | Containerizacao e orquestracao |
-| **Trivy** | Analise estatica de vulnerabilidades |
+| **class-validator / class-transformer** | Validação de entrada via DTOs |
+| **Jest + Supertest** | Testes unitários e de integração |
+| **Docker + Docker Compose** | Containerização e orquestração |
+| **Trivy** | Análise estática de vulnerabilidades |
 
 ---
 
-## Justificativa Tecnologica
+## Justificativa Tecnológica
 
 ### Banco de Dados -- PostgreSQL
 
-Adocao justificada por sua robustez transacional, forte suporte a integridade referencial nativa e adequacao a um dominio com entidades altamente interligadas (Ordens, Clientes, Veiculos, Pecas).
+Adoção justificada por sua robustez transacional, forte suporte à integridade referencial nativa e adequação a um domínio com entidades altamente interligadas (Ordens, Clientes, Veículos, Peças).
 
 ### ORM -- Prisma
 
-Escolha baseada na maturidade da geracao automatica de tipagens (Type Safety), clareza esquematica e produtividade nas migracoes versionadas, reduzindo impedance mismatch entre dominio e persistencia.
+Escolha baseada na maturidade da geração automática de tipagens (Type Safety), clareza esquemática e produtividade nas migrações versionadas, reduzindo impedance mismatch entre domínio e persistência.
 
 ### Framework -- NestJS
 
-Estrutura opinativa e modular com injecao de dependencias nativa, impulsionando praticas de Separacao em Camadas e DDD sem atrito arquitetural, favorecendo integridade e testabilidade da API.
+Estrutura opinativa e modular com injeção de dependências nativa, impulsionando práticas de separação em camadas e DDD sem atrito arquitetural, favorecendo integridade e testabilidade da API.
 
 ---
 
 ## Arquitetura do Sistema
 
-O projeto adota uma estrutura em camadas baseada em **Domain-Driven Design (DDD)** para maximizar resiliencia a mudancas e protecao do nucleo de negocios:
+O projeto adota uma estrutura em camadas baseada em **Domain-Driven Design (DDD)** para maximizar resiliência a mudanças e proteção do núcleo de negócios:
 
-- **Domain:** Coracao da aplicacao -- Entidades, Value Objects, Enums, regras de negocio e contratos de repositorio. Totalmente isolado de frameworks.
-- **Application:** Orquestracao -- Casos de Uso, DTOs de entrada/saida e Mappers.
-- **Interfaces/HTTP:** Controllers REST com decorators Swagger e guards de autenticacao.
-- **Infrastructure:** Implementacoes concretas dos repositorios (Prisma) e filtros de excecao.
-- **Shared:** Exceptions de dominio, filtros globais (Prisma/Domain) e servico singleton do banco.
+- **Domain:** Coração da aplicação -- Entidades, Value Objects, Enums, regras de negócio e contratos de repositório. Totalmente isolado de frameworks.
+- **Application:** Orquestração -- Casos de Uso, DTOs de entrada/saída e Mappers.
+- **Interfaces/HTTP:** Controllers REST com decorators Swagger e guards de autenticação.
+- **Infrastructure:** Implementações concretas dos repositórios (Prisma) e filtros de exceção.
+- **Shared:** Exceptions de domínio, filtros globais (Prisma/Domain) e serviço singleton do banco.
 
-Essa abordagem garante **baixo acoplamento** entre camadas, **alta coesao** dentro de cada modulo e **facilidade de manutencao**, permitindo que alteracoes em frameworks ou infraestrutura nao afetem as regras de negocio.
+Essa abordagem garante **baixo acoplamento** entre camadas, **alta coesão** dentro de cada módulo e **facilidade de manutenção**, permitindo que alterações em frameworks ou infraestrutura não afetem as regras de negócio.
 
 ---
 
@@ -140,38 +140,38 @@ src/
 
 ## Modelagem do Banco de Dados
 
-A aplicacao modela de forma relacional estrita: `Customer`, `Vehicle`, `ServiceOrder`, `ServiceCatalog`, `StockItem`, integrados pelas tabelas associativas de composicao de ordens.
+A aplicação modela de forma relacional estrita: `Customer`, `Vehicle`, `ServiceOrder`, `ServiceCatalog`, `StockItem`, integrados pelas tabelas associativas de composição de ordens.
 
 **Destaques Estruturais:**
 
-- Integridade referencial entre cliente, veiculo e suas ordens de servico.
-- Composicao da Ordem com `ServiceOrderService` (mao de obra baseada no catalogo).
-- Calculo isolado de consumo via `ServiceOrderStockItem` (pecas/insumos com baixa real de inventario).
+- Integridade referencial entre cliente, veículo e suas ordens de serviço.
+- Composição da Ordem com `ServiceOrderService` (mão de obra baseada no catálogo).
+- Cálculo isolado de consumo via `ServiceOrderStockItem` (peças/insumos com baixa real de inventário).
 - Soft delete via campo `isActive` em Customer, Vehicle, ServiceCatalog e StockItem.
 
 ---
 
-## Seguranca
+## Segurança
 
-O projeto incorpora praticas de seguranca em multiplas camadas, combinando hardening da aplicacao com analise estatica de vulnerabilidades.
+O projeto incorpora práticas de segurança em múltiplas camadas, combinando hardening da aplicação com análise estática de vulnerabilidades.
 
 ### Medidas de Hardening Implementadas
 
-- **JWT sem fallback hardcoded:** O `JWT_SECRET` e obrigatoriamente configurado via variavel de ambiente (`ConfigService.getOrThrow`). A aplicacao nao inicializa sem ele.
-- **Helmet:** Headers HTTP de seguranca aplicados globalmente.
-- **CORS:** Configuracao restritiva via variavel de ambiente `CORS_ORIGIN`.
-- **Docker nao-root:** Dockerfile utiliza diretiva `USER node` para execucao nao privilegiada.
-- **Validacao de entrada:** Todas as rotas utilizam `ValidationPipe` com `whitelist` e `forbidNonWhitelisted`.
+- **JWT sem fallback hardcoded:** O `JWT_SECRET` é obrigatoriamente configurado via variável de ambiente (`ConfigService.getOrThrow`). A aplicação não inicializa sem ele.
+- **Helmet:** Headers HTTP de segurança aplicados globalmente.
+- **CORS:** Configuração restritiva via variável de ambiente `CORS_ORIGIN`.
+- **Docker não-root:** Dockerfile utiliza diretiva `USER node` para execução não privilegiada.
+- **Validação de entrada:** Todas as rotas utilizam `ValidationPipe` com `whitelist` e `forbidNonWhitelisted`.
 
-### Arquitetura DDD e Seguranca Organica
+### Arquitetura DDD e Segurança Orgânica
 
-A modelagem baseada em DDD contribui diretamente para a postura de seguranca do sistema:
+A modelagem baseada em DDD contribui diretamente para a postura de segurança do sistema:
 
-- **Isolamento de Dependencias:** O nucleo de negocio (Domain) nao depende de frameworks externos, bloqueando infiltracoes por dependencias transitivas (Supply Chain).
-- **Reducao da Superficie de Ataque:** Adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
-- **Facilidade de Patching:** Casos de Uso sao independentes de atualizacoes de bibliotecas externas, mitigando quebras durante incidentes reativos.
+- **Isolamento de Dependências:** O núcleo de negócio (Domain) não depende de frameworks externos, bloqueando infiltrações por dependências transitivas (Supply Chain).
+- **Redução da Superfície de Ataque:** Adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
+- **Facilidade de Patching:** Casos de Uso são independentes de atualizações de bibliotecas externas, mitigando quebras durante incidentes reativos.
 
-### Resultado da Analise de Vulnerabilidades (Trivy)
+### Resultado da Análise de Vulnerabilidades (Trivy)
 
 Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos do projeto:
 
@@ -183,11 +183,11 @@ Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos 
 | **LOW** | 2 |
 | **Total** | 20 |
 
-**Observacao importante:** Todas as vulnerabilidades identificadas sao provenientes de **dependencias transitivas** -- bibliotecas indiretas herdadas por pacotes do ecossistema Node.js. Nenhuma vulnerabilidade se encontra no codigo-fonte da aplicacao.
+**Observação importante:** Todas as vulnerabilidades identificadas são provenientes de **dependências transitivas** -- bibliotecas indiretas herdadas por pacotes do ecossistema Node.js. Nenhuma vulnerabilidade se encontra no código-fonte da aplicação.
 
-**Exemplos de dependencias afetadas:**
+**Exemplos de dependências afetadas:**
 
-- `lodash` -- Risco de poluicao de prototipo (Prototype Pollution)
+- `lodash` -- Risco de poluição de protótipo (Prototype Pollution)
 - `path-to-regexp` -- Risco de ReDoS (Regular Expression Denial of Service) no Express
 - `glob`, `tar`, `minimatch` -- Vulnerabilidades de traversal e parsing
 
