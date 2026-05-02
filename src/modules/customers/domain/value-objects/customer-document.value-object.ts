@@ -20,6 +20,17 @@ export class CustomerDocument {
         this._type = type;
     }
 
+    /**
+     * Reconstitutes a CustomerDocument from persistence without re-validating.
+     * Data from the database was already validated at creation time.
+     */
+    static restore(value: string, type: CustomerDocumentType): CustomerDocument {
+        const instance = Object.create(CustomerDocument.prototype);
+        instance._value = value;
+        instance._type = type;
+        return instance;
+    }
+
     private isValidCPF(cpf: string): boolean {
         if (!/^\d{11}$/.test(cpf) || /^(\d)\1{10}$/.test(cpf)) return false;
         

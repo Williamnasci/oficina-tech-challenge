@@ -104,7 +104,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
         return new Customer({
             id: data.id,
             name: data.name,
-            document: new CustomerDocument(
+            document: CustomerDocument.restore(
                 data.document,
                 data.documentType as CustomerDocumentType,
             ),
