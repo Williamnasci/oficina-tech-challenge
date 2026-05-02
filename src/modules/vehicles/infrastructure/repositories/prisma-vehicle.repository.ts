@@ -87,6 +87,7 @@ export class PrismaVehicleRepository implements VehicleRepository {
                     brand: vehicle.brand,
                     model: vehicle.model,
                     year: vehicle.year,
+                    isActive: vehicle.isActive,
                     updatedAt: vehicle.updatedAt,
                 },
             });

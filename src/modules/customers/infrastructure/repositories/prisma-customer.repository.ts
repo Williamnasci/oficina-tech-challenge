@@ -75,6 +75,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
                     name: customer.name,
                     phone: customer.phone,
                     email: customer.email,
+                    isActive: customer.isActive,
                     updatedAt: customer.updatedAt,
                 },
             });

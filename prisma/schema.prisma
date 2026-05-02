@@ -13,6 +13,7 @@ model Customer {
   document      String               @unique
   phone         String?
   email         String?
+  isActive      Boolean              @default(true)
   createdAt     DateTime             @default(now())
   updatedAt     DateTime             @updatedAt
   serviceOrders ServiceOrder[]
@@ -26,6 +27,7 @@ model Vehicle {
   brand         String
   model         String
   year          Int
+  isActive      Boolean        @default(true)
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   serviceOrders ServiceOrder[]
