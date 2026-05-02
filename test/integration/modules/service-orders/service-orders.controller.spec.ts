@@ -11,6 +11,8 @@ import { FinishServiceOrderUseCase } from '../../../../src/modules/service-order
 import { DeliverServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/deliver-service-order.use-case';
 import { AddServiceToServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/add-service-to-service-order.use-case';
 import { AddStockItemToServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/add-stock-item-to-service-order.use-case';
+import { ApproveBudgetUseCase } from '../../../../src/modules/service-orders/application/use-cases/approve-budget.use-case';
+import { FindServiceOrdersByDocumentUseCase } from '../../../../src/modules/service-orders/application/use-cases/find-service-orders-by-document.use-case';
 import { JwtAuthGuard } from '../../../../src/modules/auth/jwt-auth.guard';
 
 describe('ServiceOrdersController (integration)', () => {
@@ -67,6 +69,8 @@ describe('ServiceOrdersController (integration)', () => {
                 { provide: DeliverServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 { provide: AddServiceToServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 { provide: AddStockItemToServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
+                { provide: ApproveBudgetUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
+                { provide: FindServiceOrdersByDocumentUseCase, useValue: { execute: jest.fn().mockResolvedValue([]) } },
             ],
         })
         .overrideGuard(JwtAuthGuard)
@@ -96,5 +100,21 @@ describe('ServiceOrdersController (integration)', () => {
                 expect(body.stockItems).toHaveLength(1);
                 expect(body.totalAmount).toBe(550);
             });
+    });
+
+    it('POST /service-orders should create a service order', async () => {
+        await request(app.getHttpServer())
+            .post('/service-orders')
+            .send({ customerId: '18201d07-08aa-4e2f-ae0e-35a06e0e5e49', vehicleId: '70af8254-8ffa-42d6-8593-c0a80b2be3a5' })
+            .expect(201)
+            .expect(({ body }) => {
+                expect(body.id).toBe('service-order-1');
+            });
+    });
+
+    it('PATCH /service-orders/:id/approve-budget should return 204', async () => {
+        await request(app.getHttpServer())
+            .patch('/service-orders/service-order-1/approve-budget')
+            .expect(204);
     });
 });

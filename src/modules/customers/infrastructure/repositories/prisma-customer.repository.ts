@@ -1,11 +1,13 @@
 import {
     ConflictException,
     Injectable,
+    NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { Customer } from '../../domain/entities/customer.entity';
 import { CustomerRepository } from '../../domain/repositories/customer.repository';
 import { CustomerDocument } from '../../domain/value-objects/customer-document.value-object';
+import { CustomerDocumentType } from '../../domain/enums/customer-document-type.enum';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
 
 @Injectable()
@@ -42,15 +44,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
 
         if (!data) return null;
 
-        return new Customer({
-            id: data.id,
-            name: data.name,
-            document: new CustomerDocument(data.document, data.documentType as any),
-            phone: data.phone,
-            email: data.email,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-        });
+        return this.toDomain(data);
     }
 
     async findByDocument(document: string): Promise<Customer | null> {
@@ -62,10 +56,56 @@ export class PrismaCustomerRepository implements CustomerRepository {
 
         if (!data) return null;
 
+        return this.toDomain(data);
+    }
+
+    async findAll(): Promise<Customer[]> {
+        const data = await this.prisma.customer.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return data.map((item) => this.toDomain(item));
+    }
+
+    async update(customer: Customer): Promise<void> {
+        try {
+            await this.prisma.customer.update({
+                where: { id: customer.id },
+                data: {
+                    name: customer.name,
+                    phone: customer.phone,
+                    email: customer.email,
+                    updatedAt: customer.updatedAt,
+                },
+            });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2025') {
+                    throw new NotFoundException('Customer not found.');
+                }
+            }
+
+            throw error;
+        }
+    }
+
+    private toDomain(data: {
+        id: string;
+        name: string;
+        document: string;
+        documentType: string;
+        phone: string | null;
+        email: string | null;
+        createdAt: Date;
+        updatedAt: Date;
+    }): Customer {
         return new Customer({
             id: data.id,
             name: data.name,
-            document: new CustomerDocument(data.document, data.documentType as any),
+            document: new CustomerDocument(
+                data.document,
+                data.documentType as CustomerDocumentType,
+            ),
             phone: data.phone,
             email: data.email,
             createdAt: data.createdAt,

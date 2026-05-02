@@ -67,6 +67,16 @@ export class ServiceOrder {
         this.touch();
     }
 
+    public approveBudget(): void {
+        if (this.status !== ServiceOrderStatus.WAITING_APPROVAL) {
+            throw new DomainException('Only service orders waiting approval can be approved.');
+        }
+
+        this.status = ServiceOrderStatus.IN_PROGRESS;
+        this.startedAt = new Date();
+        this.touch();
+    }
+
     public startExecution(): void {
         if (this.status !== ServiceOrderStatus.WAITING_APPROVAL) {
             throw new DomainException('Service order must be waiting approval before starting execution.');
@@ -95,6 +105,22 @@ export class ServiceOrder {
         this.status = ServiceOrderStatus.DELIVERED;
         this.deliveredAt = new Date();
         this.touch();
+    }
+
+    public updateServicesAmount(amount: number): void {
+        this.servicesAmount = amount;
+        this.recalculateTotal();
+        this.touch();
+    }
+
+    public updateStockItemsAmount(amount: number): void {
+        this.stockItemsAmount = amount;
+        this.recalculateTotal();
+        this.touch();
+    }
+
+    public recalculateTotal(): void {
+        this.totalAmount = this.servicesAmount + this.stockItemsAmount;
     }
 
     private touch(): void {

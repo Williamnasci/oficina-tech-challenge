@@ -205,25 +205,38 @@ Para navegação via Swagger (`http://localhost:3000/docs`):
 
 Os ativos associados fundamentais desta documentação encontram-se sumarizados:
 
-* **Vídeo Demonstrativo (Arquitetura):** [Adicionar Link do Vídeo Aqui]
-* **Documentação DDD (Event Storming e Fluxos):** [Adicionar Link do Miro Aqui]
+* **Documentação DDD:**
+  * [Event Storming](docs/event-storming.md) — Eventos de domínio, comandos, atores e fluxos
+  * [Bounded Contexts](docs/bounded-contexts.md) — Contextos delimitados e mapa de contextos
+  * [Linguagem Ubíqua](docs/ubiquitous-language.md) — Glossário PT-BR ↔ EN
+  * [Arquitetura](docs/architecture.md) — Decisões arquiteturais e justificativas
 * **Relatórios e Artefatos (Segurança):** [docs/security-report.md](docs/security-report.md)
 
 ---
 
 ## Gestão de Qualidade de Código (Testes)
 
-Para provar o modelo lógico de domínio contra regressões imprevistas, garantimos uma extensa malha de testes unificados sobre as Entidades, Use Cases Vitais, Value Objects (validações algorítmicas de negócio puro como CNPJ) e Regras do Controller Administrativo.
+Para provar o modelo lógico de domínio contra regressões imprevistas, garantimos uma extensa malha de testes unificados sobre as Entidades, Use Cases, Value Objects (validações algorítmicas de negócio puro como CNPJ), Repositories, Controllers e Filters.
 
 ```bash
-# Executa todos os pre-checks isolados
+# Executa todos os testes
 npm test
 
-# Avalia matriz de detecção / branch coverage
+# Avalia cobertura (statements, branches, functions, lines)
 npm run test:cov
 ```
 
-O projeto entrega MVP com índices rigorosos que aferem estabilidade inquebrável nos núcleos dos requisitos principais.
+### Cobertura Atual
+
+| Métrica | Valor |
+|---------|-------|
+| Statements | ~86% |
+| Lines | ~85% |
+| Functions | ~83% |
+| Suites | 53 |
+| Tests | 162 |
+
+O projeto entrega MVP com índices rigorosos que aferem estabilidade nos núcleos dos requisitos principais.
 
 ---
 

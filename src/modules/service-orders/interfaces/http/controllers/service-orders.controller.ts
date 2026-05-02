@@ -7,12 +7,14 @@ import {
     Param,
     Patch,
     Post,
+    Query,
     UseGuards
 } from '@nestjs/common';
 import {
     ApiBody,
     ApiOperation,
     ApiParam,
+    ApiQuery,
     ApiResponse,
     ApiTags,
     ApiBearerAuth
@@ -30,8 +32,11 @@ import { AddServiceToServiceOrderDto } from '../../../application/dto/add-servic
 import { AddServiceToServiceOrderUseCase } from '../../../application/use-cases/add-service-to-service-order.use-case';
 import { AddStockItemToServiceOrderDto } from '../../../application/dto/add-stock-item-to-service-order.dto';
 import { AddStockItemToServiceOrderUseCase } from '../../../application/use-cases/add-stock-item-to-service-order.use-case';
+import { ApproveBudgetUseCase } from '../../../application/use-cases/approve-budget.use-case';
+import { FindServiceOrdersByDocumentUseCase } from '../../../application/use-cases/find-service-orders-by-document.use-case';
 import { ServiceOrderDetailsResponseDto } from '../../../application/dto/service-order-details-response.dto';
 import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
+
 @ApiTags('service-orders')
 @Controller('service-orders')
 export class ServiceOrdersController {
@@ -45,6 +50,8 @@ export class ServiceOrdersController {
         private readonly deliverServiceOrderUseCase: DeliverServiceOrderUseCase,
         private readonly addServiceToServiceOrderUseCase: AddServiceToServiceOrderUseCase,
         private readonly addStockItemToServiceOrderUseCase: AddStockItemToServiceOrderUseCase,
+        private readonly approveBudgetUseCase: ApproveBudgetUseCase,
+        private readonly findServiceOrdersByDocumentUseCase: FindServiceOrdersByDocumentUseCase,
     ) { }
 
     @Post()
@@ -56,6 +63,25 @@ export class ServiceOrdersController {
     @ApiResponse({ status: 201, description: 'Service order created successfully.' })
     async create(@Body() body: CreateServiceOrderDto): Promise<{ id: string }> {
         return this.createServiceOrderUseCase.execute(body);
+    }
+
+    @Get()
+    @ApiOperation({ summary: 'Search service orders by customer document (CPF/CNPJ)' })
+    @ApiQuery({
+        name: 'document',
+        required: true,
+        description: 'Customer CPF or CNPJ',
+        example: '52998224725',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Service orders retrieved successfully.',
+        type: [ServiceOrderDetailsResponseDto],
+    })
+    async findByDocument(
+        @Query('document') document: string,
+    ): Promise<ServiceOrderDetailsResponseDto[]> {
+        return this.findServiceOrdersByDocumentUseCase.execute(document);
     }
 
     @Get(':id')
@@ -108,6 +134,20 @@ export class ServiceOrdersController {
         await this.sendBudgetForApprovalUseCase.execute(id);
     }
 
+    @Patch(':id/approve-budget')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Approve service order budget (client action)' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiResponse({ status: 204, description: 'Budget approved successfully.' })
+    async approveBudget(@Param('id') id: string): Promise<void> {
+        await this.approveBudgetUseCase.execute(id);
+    }
+
     @Patch(':id/start-execution')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
@@ -123,6 +163,7 @@ export class ServiceOrdersController {
     async startExecution(@Param('id') id: string): Promise<void> {
         await this.startServiceOrderExecutionUseCase.execute(id);
     }
+
     @Post(':id/services')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
@@ -174,6 +215,7 @@ export class ServiceOrdersController {
     async deliver(@Param('id') id: string): Promise<void> {
         await this.deliverServiceOrderUseCase.execute(id);
     }
+
     @Post(':id/stock-items')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
@@ -193,6 +235,4 @@ export class ServiceOrdersController {
     ): Promise<void> {
         await this.addStockItemToServiceOrderUseCase.execute(id, body);
     }
-
-
 }

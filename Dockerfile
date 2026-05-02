@@ -24,6 +24,8 @@ COPY --from=builder /usr/src/app/dist ./dist
 
 RUN npx prisma generate
 
+USER node
+
 EXPOSE 3000
 
 CMD [ "npm", "run", "start:prod" ]

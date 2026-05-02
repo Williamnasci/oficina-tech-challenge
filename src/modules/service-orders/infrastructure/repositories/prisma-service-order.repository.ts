@@ -1,4 +1,4 @@
-﻿import {
+import {
     ConflictException,
     Injectable,
     NotFoundException,
@@ -6,7 +6,9 @@
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.service';
 import { ServiceOrder } from '../../domain/entities/service-order.entity';
+import { ServiceOrderStatus } from '../../domain/enums/service-order-status.enum';
 import { ServiceOrderRepository } from '../../domain/repositories/service-order.repository';
+import { ServiceOrderDetailsResponseDto } from '../../application/dto/service-order-details-response.dto';
 
 @Injectable()
 export class PrismaServiceOrderRepository implements ServiceOrderRepository {
@@ -47,21 +49,7 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
 
         if (!data) return null;
 
-        return new ServiceOrder({
-            id: data.id,
-            customerId: data.customerId,
-            vehicleId: data.vehicleId,
-            status: data.status as any,
-            diagnosis: data.diagnosis,
-            servicesAmount: Number(data.servicesAmount),
-            stockItemsAmount: Number(data.stockItemsAmount),
-            totalAmount: Number(data.totalAmount),
-            createdAt: data.createdAt,
-            startedAt: data.startedAt,
-            finishedAt: data.finishedAt,
-            deliveredAt: data.deliveredAt,
-            updatedAt: data.updatedAt,
-        });
+        return this.toDomain(data);
     }
 
     async findAll(): Promise<ServiceOrder[]> {
@@ -69,24 +57,16 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
             orderBy: { createdAt: 'desc' },
         });
 
-        return data.map(
-            (item) =>
-                new ServiceOrder({
-                    id: item.id,
-                    customerId: item.customerId,
-                    vehicleId: item.vehicleId,
-                    status: item.status as any,
-                    diagnosis: item.diagnosis,
-                    servicesAmount: Number(item.servicesAmount),
-                    stockItemsAmount: Number(item.stockItemsAmount),
-                    totalAmount: Number(item.totalAmount),
-                    createdAt: item.createdAt,
-                    startedAt: item.startedAt,
-                    finishedAt: item.finishedAt,
-                    deliveredAt: item.deliveredAt,
-                    updatedAt: item.updatedAt,
-                }),
-        );
+        return data.map((item) => this.toDomain(item));
+    }
+
+    async findByCustomerId(customerId: string): Promise<ServiceOrder[]> {
+        const data = await this.prisma.serviceOrder.findMany({
+            where: { customerId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return data.map((item) => this.toDomain(item));
     }
 
     async update(order: ServiceOrder): Promise<void> {
@@ -176,20 +156,22 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
                 0,
             );
 
-            const totalAmount = servicesAmount + Number(order.stockItemsAmount);
+            // Use domain entity for recalculation
+            const domainOrder = this.toDomain(order);
+            domainOrder.updateServicesAmount(servicesAmount);
 
             await tx.serviceOrder.update({
                 where: { id: serviceOrderId },
                 data: {
-                    servicesAmount,
-                    totalAmount,
-                    updatedAt: new Date(),
+                    servicesAmount: domainOrder.servicesAmount,
+                    totalAmount: domainOrder.totalAmount,
+                    updatedAt: domainOrder.updatedAt,
                 },
             });
         });
     }
 
-    async findDetailsById(id: string): Promise<any | null> {
+    async findDetailsById(id: string): Promise<ServiceOrderDetailsResponseDto | null> {
         const data = await this.prisma.serviceOrder.findUnique({
             where: { id },
             include: {
@@ -212,7 +194,7 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
             id: data.id,
             customerId: data.customerId,
             vehicleId: data.vehicleId,
-            status: data.status,
+            status: data.status as ServiceOrderStatus,
             diagnosis: data.diagnosis,
             servicesAmount: Number(data.servicesAmount),
             stockItemsAmount: Number(data.stockItemsAmount),
@@ -313,16 +295,50 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
                 0,
             );
 
-            const totalAmount = Number(order.servicesAmount) + stockItemsAmount;
+            // Use domain entity for recalculation
+            const domainOrder = this.toDomain(order);
+            domainOrder.updateStockItemsAmount(stockItemsAmount);
 
             await tx.serviceOrder.update({
                 where: { id: serviceOrderId },
                 data: {
-                    stockItemsAmount,
-                    totalAmount,
-                    updatedAt: new Date(),
+                    stockItemsAmount: domainOrder.stockItemsAmount,
+                    totalAmount: domainOrder.totalAmount,
+                    updatedAt: domainOrder.updatedAt,
                 },
             });
+        });
+    }
+
+    private toDomain(data: {
+        id: string;
+        customerId: string;
+        vehicleId: string;
+        status: string;
+        diagnosis: string | null;
+        servicesAmount: Prisma.Decimal | number;
+        stockItemsAmount: Prisma.Decimal | number;
+        totalAmount: Prisma.Decimal | number;
+        createdAt: Date;
+        startedAt: Date | null;
+        finishedAt: Date | null;
+        deliveredAt: Date | null;
+        updatedAt: Date;
+    }): ServiceOrder {
+        return new ServiceOrder({
+            id: data.id,
+            customerId: data.customerId,
+            vehicleId: data.vehicleId,
+            status: data.status as ServiceOrderStatus,
+            diagnosis: data.diagnosis,
+            servicesAmount: Number(data.servicesAmount),
+            stockItemsAmount: Number(data.stockItemsAmount),
+            totalAmount: Number(data.totalAmount),
+            createdAt: data.createdAt,
+            startedAt: data.startedAt,
+            finishedAt: data.finishedAt,
+            deliveredAt: data.deliveredAt,
+            updatedAt: data.updatedAt,
         });
     }
 }

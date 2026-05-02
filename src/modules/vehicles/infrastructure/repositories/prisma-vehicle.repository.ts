@@ -47,16 +47,7 @@ export class PrismaVehicleRepository implements VehicleRepository {
 
         if (!data) return null;
 
-        return new Vehicle({
-            id: data.id,
-            customerId: data.customerId,
-            licensePlate: new LicensePlate(data.licensePlate),
-            brand: data.brand,
-            model: data.model,
-            year: data.year,
-            createdAt: data.createdAt,
-            updatedAt: data.updatedAt,
-        });
+        return this.toDomain(data);
     }
 
     async findByLicensePlate(licensePlate: string): Promise<Vehicle | null> {
@@ -68,6 +59,58 @@ export class PrismaVehicleRepository implements VehicleRepository {
 
         if (!data) return null;
 
+        return this.toDomain(data);
+    }
+
+    async findAll(): Promise<Vehicle[]> {
+        const data = await this.prisma.vehicle.findMany({
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return data.map((item) => this.toDomain(item));
+    }
+
+    async findByCustomerId(customerId: string): Promise<Vehicle[]> {
+        const data = await this.prisma.vehicle.findMany({
+            where: { customerId },
+            orderBy: { createdAt: 'desc' },
+        });
+
+        return data.map((item) => this.toDomain(item));
+    }
+
+    async update(vehicle: Vehicle): Promise<void> {
+        try {
+            await this.prisma.vehicle.update({
+                where: { id: vehicle.id },
+                data: {
+                    brand: vehicle.brand,
+                    model: vehicle.model,
+                    year: vehicle.year,
+                    updatedAt: vehicle.updatedAt,
+                },
+            });
+        } catch (error) {
+            if (error instanceof Prisma.PrismaClientKnownRequestError) {
+                if (error.code === 'P2025') {
+                    throw new NotFoundException('Vehicle not found.');
+                }
+            }
+
+            throw error;
+        }
+    }
+
+    private toDomain(data: {
+        id: string;
+        customerId: string;
+        licensePlate: string;
+        brand: string;
+        model: string;
+        year: number;
+        createdAt: Date;
+        updatedAt: Date;
+    }): Vehicle {
         return new Vehicle({
             id: data.id,
             customerId: data.customerId,
