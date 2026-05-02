@@ -11,13 +11,13 @@ import { AuthModule } from './modules/auth/auth.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
     PrismaModule,
     CustomersModule,
     VehiclesModule,
     ServiceOrdersModule,
     StockItemsModule,
     ServiceCatalogModule,
-    AuthModule
   ],
 })
 export class AppModule { }
