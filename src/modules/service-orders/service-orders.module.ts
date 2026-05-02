@@ -14,9 +14,10 @@ import { ServiceOrderRepository } from './domain/repositories/service-order.repo
 import { PrismaServiceOrderRepository } from './infrastructure/repositories/prisma-service-order.repository';
 import { ServiceOrdersController } from './interfaces/http/controllers/service-orders.controller';
 import { CustomersModule } from '../customers/customers.module';
+import { VehiclesModule } from '../vehicles/vehicles.module';
 
 @Module({
-    imports: [CustomersModule],
+    imports: [CustomersModule, VehiclesModule],
     controllers: [ServiceOrdersController],
     providers: [
         AddServiceToServiceOrderUseCase,
