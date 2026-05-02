@@ -109,6 +109,7 @@ export class PrismaVehicleRepository implements VehicleRepository {
         brand: string;
         model: string;
         year: number;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
     }): Vehicle {
@@ -119,6 +120,7 @@ export class PrismaVehicleRepository implements VehicleRepository {
             brand: data.brand,
             model: data.model,
             year: data.year,
+            isActive: data.isActive,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
         });

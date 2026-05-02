@@ -97,6 +97,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
         documentType: string;
         phone: string | null;
         email: string | null;
+        isActive: boolean;
         createdAt: Date;
         updatedAt: Date;
     }): Customer {
@@ -109,6 +110,7 @@ export class PrismaCustomerRepository implements CustomerRepository {
             ),
             phone: data.phone,
             email: data.email,
+            isActive: data.isActive,
             createdAt: data.createdAt,
             updatedAt: data.updatedAt,
         });
