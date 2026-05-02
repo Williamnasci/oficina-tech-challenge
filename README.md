@@ -1,64 +1,116 @@
 # Oficina Tech Challenge
 
-![Security](https://img.shields.io/badge/security-scan%20enabled-green)
 ![Status](https://img.shields.io/badge/status-MVP-blue)
+![Node](https://img.shields.io/badge/node-%3E%3D18-green)
+![NestJS](https://img.shields.io/badge/NestJS-10-red)
+![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
 
-## Descrição do Projeto
+## Descricao do Projeto
 
-Este projeto consiste no desenvolvimento do back-end de um sistema integrado para gestão de oficinas mecânicas, construído com práticas avançadas de arquitetura para o Tech Challenge da pós-graduação em Arquitetura de Software.
+Sistema back-end para gestao de oficinas mecanicas, desenvolvido como entrega do **Tech Challenge Fase 1** da pos-graduacao em Arquitetura de Software pela FIAP.
 
-A aplicação atua como núcleo de controle, centralizando e organizando o fluxo de atendimento da oficina de modo seguro e modular, contemplando cadastro de clientes, veículos, ordens de serviço, catálogo de serviços, itens de estoque e orçamentos dinâmicos.
+A aplicacao centraliza o fluxo operacional de uma oficina, contemplando cadastro de clientes, veiculos, ordens de servico, catalogo de servicos, controle de estoque de pecas/insumos e orcamentos dinamicos com maquina de estado completa.
 
 ---
 
 ## Objetivo
 
-O sistema foi arquitetado para suportar as complexidades diárias de uma oficina com eficiência, atendendo às seguintes necessidades de negócio:
+O sistema foi arquitetado para atender as seguintes necessidades de negocio:
 
-- Cadastro e gestão unificada de clientes e veículos
-- Criação e acompanhamento em máquina de estado de ordens de serviço
-- Registro minucioso de diagnóstico técnico
-- Inclusão e cálculo de serviços prestados
-- Precificação e consumo real de peças e insumos em estoque
-- Composição detalhada e controle flexível do orçamento
+- Cadastro e gestao unificada de clientes (CPF/CNPJ) e veiculos
+- Criacao e acompanhamento de ordens de servico com maquina de estado
+- Registro de diagnostico tecnico
+- Inclusao e calculo automatico de servicos prestados
+- Precificacao e consumo real de pecas e insumos com baixa de estoque
+- Composicao detalhada de orcamento com fluxo de aprovacao
+
+---
+
+## Funcionalidades
+
+### Customers
+
+- Cadastro com validacao algoritmica de CPF e CNPJ
+- Consulta por ID ou por documento (CPF/CNPJ)
+- Listagem completa, atualizacao parcial e exclusao logica (soft delete)
+
+### Vehicles
+
+- Cadastro com validacao de placa (formato antigo e Mercosul)
+- Vinculo obrigatorio com cliente existente
+- Listagem, atualizacao parcial e exclusao logica
+
+### Service Orders
+
+- Criacao vinculada a cliente e veiculo ativos
+- Registro de diagnostico tecnico
+- Adicao de servicos do catalogo e pecas do estoque
+- Calculo automatico de orcamento
+- Fluxo completo com maquina de estado:
+
+```
+RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
+```
+
+- Aprovacao de orcamento e consulta por CPF/CNPJ do cliente
+
+### Stock Items
+
+- Cadastro de pecas e insumos com SKU unico
+- Controle de quantidade em estoque com baixa automatica ao vincular a OS
+- Listagem, atualizacao e exclusao logica
+
+### Service Catalog
+
+- Cadastro de servicos com nome, descricao e preco
+- Listagem, atualizacao e exclusao logica
 
 ---
 
 ## Tecnologias Utilizadas
 
-- **Node.js & TypeScript**
-- **NestJS** (Framework core)
-- **Prisma ORM** (Camada de persistência)
-- **PostgreSQL**
-- **Swagger (OpenAPI)**
-- **Helmet** (Security Headers)
-- **class-validator / class-transformer**
-- **Jest & Supertest** (Unit and e2e testing)
+| Tecnologia | Funcao |
+|------------|--------|
+| **Node.js + TypeScript** | Runtime e tipagem estatica |
+| **NestJS** | Framework principal com IoC nativo |
+| **Prisma ORM** | Camada de persistencia type-safe |
+| **PostgreSQL** | Banco de dados relacional |
+| **Swagger (OpenAPI)** | Documentacao automatica da API |
+| **Helmet** | Hardening de headers HTTP |
+| **class-validator / class-transformer** | Validacao de entrada via DTOs |
+| **Jest + Supertest** | Testes unitarios e de integracao |
+| **Docker + Docker Compose** | Containerizacao e orquestracao |
+| **Trivy** | Analise estatica de vulnerabilidades |
 
 ---
 
-## Justificativa Tecnológica
+## Justificativa Tecnologica
 
-### Banco de Dados — PostgreSQL
-Adoção justificada por sua robustez transacional, forte suporte a integridade referencial nativa e adequação perfeita a um domínio central com entidades altamente interligadas (Ordens, Itens, Clientes, Empregados).
+### Banco de Dados -- PostgreSQL
 
-### ORM — Prisma
-Escolha baseada na maturidade da geração automática de tipagens (`Type Safety`), clareza esquemática, e extrema produtividade nas migrações versionadas, reduzindo "impedance mismatch".
+Adocao justificada por sua robustez transacional, forte suporte a integridade referencial nativa e adequacao a um dominio com entidades altamente interligadas (Ordens, Clientes, Veiculos, Pecas).
 
-### Framework — NestJS
-Sua estrutura opinativa e modular fornece injeção de dependências "out-of-the-box", impulsionando práticas como Separação em Camadas e DDD sem atrito arquitetural, e favorecendo integridade e testabilidade da API.
+### ORM -- Prisma
+
+Escolha baseada na maturidade da geracao automatica de tipagens (Type Safety), clareza esquematica e produtividade nas migracoes versionadas, reduzindo impedance mismatch entre dominio e persistencia.
+
+### Framework -- NestJS
+
+Estrutura opinativa e modular com injecao de dependencias nativa, impulsionando praticas de Separacao em Camadas e DDD sem atrito arquitetural, favorecendo integridade e testabilidade da API.
 
 ---
 
 ## Arquitetura do Sistema
 
-O projeto adota uma estrutura em camadas inspirada em **Domain-Driven Design (DDD)** para maximizar resiliência a mudanças e proteção do núcleo de negócios:
+O projeto adota uma estrutura em camadas baseada em **Domain-Driven Design (DDD)** para maximizar resiliencia a mudancas e protecao do nucleo de negocios:
 
-- **Domain:** O coração da aplicação (Entidades, Enums, Regras e Contratos). Totalmente isolado de frameworks e impedimentos externos.
-- **Application:** Orquestradora dos Modelos. Onde fluem os Casos de Uso, DTOs de entrada e Mappers.
-- **Interfaces/HTTP:** Concentra os Controllers para interceptar a malha de rotas e segurança REST.
-- **Infrastructure:** Camada densa com as implementações concretas dos Repositórios e chamadas do Prisma.
-- **Shared:** Ponto em comum de Exceptions, Filtros e instâncias singleton do banco.
+- **Domain:** Coracao da aplicacao -- Entidades, Value Objects, Enums, regras de negocio e contratos de repositorio. Totalmente isolado de frameworks.
+- **Application:** Orquestracao -- Casos de Uso, DTOs de entrada/saida e Mappers.
+- **Interfaces/HTTP:** Controllers REST com decorators Swagger e guards de autenticacao.
+- **Infrastructure:** Implementacoes concretas dos repositorios (Prisma) e filtros de excecao.
+- **Shared:** Exceptions de dominio, filtros globais (Prisma/Domain) e servico singleton do banco.
+
+Essa abordagem garante **baixo acoplamento** entre camadas, **alta coesao** dentro de cada modulo e **facilidade de manutencao**, permitindo que alteracoes em frameworks ou infraestrutura nao afetem as regras de negocio.
 
 ---
 
@@ -69,177 +121,211 @@ src/
 ├── app.module.ts
 ├── main.ts
 ├── modules/
-│   ├── auth/
-│   ├── customers/
-│   ├── vehicles/
-│   ├── service-orders/
-│   ├── stock-items/
-│   └── service-catalog/
+│   ├── auth/                  # Autenticacao JWT
+│   ├── customers/             # Gestao de clientes (CPF/CNPJ)
+│   ├── vehicles/              # Gestao de veiculos
+│   ├── service-orders/        # Ordens de servico (core)
+│   ├── stock-items/           # Pecas e insumos (estoque)
+│   └── service-catalog/       # Catalogo de servicos
 ├── shared/
 │   └── infrastructure/
-│       ├── prisma/
-│       └── filters/
-├── prisma/
-└── test/
+│       ├── prisma/            # PrismaService singleton
+│       └── filters/           # Exception filters globais
+├── prisma/                    # Schema e migracoes
+├── docs/                      # Documentacao DDD
+└── test/                      # Testes unitarios e integracao
 ```
 
 ---
 
 ## Modelagem do Banco de Dados
 
-A aplicação modela de forma relacional estrita: `Customer`, `Vehicle`, `ServiceOrder`, `ServiceCatalog`, `StockItem`, integrados pelas tabelas associativas de composição de ordens.
+A aplicacao modela de forma relacional estrita: `Customer`, `Vehicle`, `ServiceOrder`, `ServiceCatalog`, `StockItem`, integrados pelas tabelas associativas de composicao de ordens.
 
 **Destaques Estruturais:**
-* Integridade entre veículo do cliente e suas ordens de serviço.
-* Composição fina da Ordem com `ServiceOrderService` (mão de obra baseada no catálogo).
-* Cálculo isolado de consumo tangível via `ServiceOrderStockItem` (Peças/Insumos com baixa real de inventário pós-aprovação).
+
+- Integridade referencial entre cliente, veiculo e suas ordens de servico.
+- Composicao da Ordem com `ServiceOrderService` (mao de obra baseada no catalogo).
+- Calculo isolado de consumo via `ServiceOrderStockItem` (pecas/insumos com baixa real de inventario).
+- Soft delete via campo `isActive` em Customer, Vehicle, ServiceCatalog e StockItem.
 
 ---
 
-## 🔐 Segurança
+## Seguranca
 
-O projeto possui scripts automatizados para análise estática de vulnerabilidades e inspeção contínua (DevSecOps), utilizando ativamente ferramentas open source como o [Trivy](https://trivy.dev/) e [SonarQube](https://www.sonarqube.org/).
+O projeto incorpora praticas de seguranca em multiplas camadas, combinando hardening da aplicacao com analise estatica de vulnerabilidades.
 
-### 🛡️ Arquitetura DDD e Segurança Orgânica
+### Medidas de Hardening Implementadas
 
-A modelagem baseada em **Domain-Driven Design (DDD)** implementada neste projeto contribui ativamente para a segurança robusta e resiliente e manutenibilidade do sistema:
-* **Isolamento de Dependências:** O núcleo de negócio (Domain) não depende de frameworks externos. Bibliotecas genéricas não infectam a regra de negócio central, bloqueando infiltrações por dependências (Supply Chain).
-* **Redução da Superfície de Ataque:** Adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
-* **Facilidade de Manutenção e Patching:** Módulo de Use Cases são independentes de atualizações de segurança severas, mitigando quebras no sistema inteiro durante incidentes reativos de bibliotecas externas.
+- **JWT sem fallback hardcoded:** O `JWT_SECRET` e obrigatoriamente configurado via variavel de ambiente (`ConfigService.getOrThrow`). A aplicacao nao inicializa sem ele.
+- **Helmet:** Headers HTTP de seguranca aplicados globalmente.
+- **CORS:** Configuracao restritiva via variavel de ambiente `CORS_ORIGIN`.
+- **Docker nao-root:** Dockerfile utiliza diretiva `USER node` para execucao nao privilegiada.
+- **Validacao de entrada:** Todas as rotas utilizam `ValidationPipe` com `whitelist` e `forbidNonWhitelisted`.
 
-### 📊 Resultado do Scan Base (Trivy)
+### Arquitetura DDD e Seguranca Organica
 
-Varredura inicial sem intervenção de patching:
+A modelagem baseada em DDD contribui diretamente para a postura de seguranca do sistema:
+
+- **Isolamento de Dependencias:** O nucleo de negocio (Domain) nao depende de frameworks externos, bloqueando infiltracoes por dependencias transitivas (Supply Chain).
+- **Reducao da Superficie de Ataque:** Adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
+- **Facilidade de Patching:** Casos de Uso sao independentes de atualizacoes de bibliotecas externas, mitigando quebras durante incidentes reativos.
+
+### Resultado da Analise de Vulnerabilidades (Trivy)
+
+Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos do projeto:
 
 | Severidade | Quantidade |
-| :--- | :--- |
+|:-----------|:-----------|
 | **CRITICAL** | 0 |
-| **HIGH** | 2 |
-| **MEDIUM** | 3 |
-| **LOW** | 0 |
-| **Total** | 5 |
+| **HIGH** | 13 |
+| **MEDIUM** | 5 |
+| **LOW** | 2 |
+| **Total** | 20 |
 
-**Principais ocorrências detectadas mitigáveis:**
-* `lodash` → Risco de execução de código arbitrário.
-* `path-to-regexp` → Risco de falha viabilizando requisições DoS (Denial of Service) algorítmicas no Express.
+**Observacao importante:** Todas as vulnerabilidades identificadas sao provenientes de **dependencias transitivas** -- bibliotecas indiretas herdadas por pacotes do ecossistema Node.js. Nenhuma vulnerabilidade se encontra no codigo-fonte da aplicacao.
 
-### 📈 Evolução da Segurança
+**Exemplos de dependencias afetadas:**
 
-Demonstração prática do avanço estrutural e ganho de maturidade após o comissionamento das rotinas DevSecOps:
+- `lodash` -- Risco de poluicao de prototipo (Prototype Pollution)
+- `path-to-regexp` -- Risco de ReDoS (Regular Expression Denial of Service) no Express
+- `glob`, `tar`, `minimatch` -- Vulnerabilidades de traversal e parsing
 
-| Momento | Vulnerabilidades Ativas | Ações Realizadas |
-| :--- | :--- | :--- |
-| **Antes** | 5 | Estado legado, base desatualizada sem auditoria transparente. |
-| **Depois** | **0** | Fix de NPM rodado proativamente, adoção de práticas de hardening em containers (ex: Alpine otimizado) e adoção do Helmet para hardening de headers HTTP. |
+**Estrategia adotada:** No contexto academico do Tech Challenge, priorizou-se a solidez arquitetural (DDD, separacao de camadas, testes) como principal mecanismo de defesa. As vulnerabilidades transitivas nao afetam a logica de negocio devido ao isolamento proporcionado pela arquitetura.
+
+**Mitigacao recomendada para producao:**
+
+```bash
+# Correcao automatica de vulnerabilidades conhecidas
+npm audit fix
+
+# Auditoria detalhada
+npm audit
+```
 
 ### Executando o Scanner Local (Trivy)
 
-O scanner pode ser executado via Docker (recomendado) ou por instalação local do binário do Trivy na sua máquina host.
+O scanner requer Docker Desktop em execucao:
 
-**1. Scan de Arquivos (Dependências e Configurações)**
 ```bash
+# Scan de dependencias e configuracoes
 npm run scan:vuln
-```
 
-**2. Gerar Relatório Exportado em Arquivo**
-```bash
+# Gerar relatorio exportado em arquivo
 npm run scan:vuln:report
-```
 
-**3. Scan da Infraestrutura e Imagem Docker**
-```bash
+# Scan da imagem Docker
 npm run scan:image
 ```
 
-*Os sumários consolidados de nossa auditoria oficial também podem ser acessados em [docs/security-report.md](docs/security-report.md).*
-
-### Mitigações Essenciais
-Em caso de quebras por rotinas em modo de desenvolvimento Node:
-```bash
-npm audit fix
-```
-
-### Análise SonarQube
-O projeto viabiliza subir um ambiente de avaliação sonarqube de forma enclausurada e controlada:
-```bash
-docker-compose up -d sonarqube
-```
-Com uso atrelado ao `sonar-project.properties`.
+O relatorio completo esta disponivel em `trivy-report.txt`.
 
 ---
 
-## Configuração e Inicialização
+## Como Executar
 
-O sistema foi preparado para rodar sob mínima complexidade operacional.
+1. Configure o arquivo `.env` na raiz do projeto:
 
-### Variáveis de Ambiente (`.env`)
 ```env
 DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5433/oficina_db?schema=public"
-PORT=3000
-JWT_SECRET=supersecretkey
+JWT_SECRET=sua_chave_secreta_aqui
 JWT_EXPIRES_IN=1d
+CORS_ORIGIN=http://localhost:3000
+PORT=3000
 ```
 
-### Orquestração Rápida (Docker Composto Recomendado)
-O ecossistema provisiona o Banco PostgreSQL, efetua a automigração pelo Prisma e liga o backend sozinho:
+2. Suba o ambiente e inicie a aplicacao:
+
 ```bash
-docker-compose up -d --build
+npm install
+docker-compose up -d
+npm run start:dev
 ```
-*(Se preferir rodar desvinculado, execute `npm install` + `npm run start:dev` após prover o banco locamente e efetuar `npx prisma migrate dev`).*
+
+3. Acesse a documentacao Swagger em: `http://localhost:3000/docs`
 
 ---
 
-## Autenticação (JWT)
+## Autenticacao (JWT)
 
-A API possui endpoints e áreas blindadas por **Bearer Token JWT** robustos. 
+A API possui rotas protegidas por **Bearer Token JWT**.
 
-Para navegação via Swagger (`http://localhost:3000/docs`):
-1. Acesse a rota pública: `POST /auth/login`
-2. Gere um admin dummy payload `{"username": "admin", "password": "admin"}`.
-3. Extraia o `access_token` gerado na devolutiva da requisição.
-4. Acione **Authorize** no painel superior do Swagger.
+Para autenticacao via Swagger (`http://localhost:3000/docs`):
 
----
-
-## Entregáveis do Projeto (Fase 1)
-
-Os ativos associados fundamentais desta documentação encontram-se sumarizados:
-
-* **Documentação DDD:**
-  * [Event Storming](docs/event-storming.md) — Eventos de domínio, comandos, atores e fluxos
-  * [Bounded Contexts](docs/bounded-contexts.md) — Contextos delimitados e mapa de contextos
-  * [Linguagem Ubíqua](docs/ubiquitous-language.md) — Glossário PT-BR ↔ EN
-  * [Arquitetura](docs/architecture.md) — Decisões arquiteturais e justificativas
-* **Relatórios e Artefatos (Segurança):** [docs/security-report.md](docs/security-report.md)
+1. Acesse a rota publica: `POST /auth/login`
+2. Envie o payload: `{"username": "admin", "password": "admin"}`
+3. Copie o `access_token` retornado na resposta
+4. Clique em **Authorize** no painel superior do Swagger e insira: `Bearer <token>`
 
 ---
 
-## Gestão de Qualidade de Código (Testes)
+## Entregaveis do Projeto (Fase 1)
 
-Para provar o modelo lógico de domínio contra regressões imprevistas, garantimos uma extensa malha de testes unificados sobre as Entidades, Use Cases, Value Objects (validações algorítmicas de negócio puro como CNPJ), Repositories, Controllers e Filters.
+| Entregavel | Localizacao |
+|------------|-------------|
+| Documentacao DDD -- Event Storming | [docs/event-storming.md](docs/event-storming.md) |
+| Documentacao DDD -- Bounded Contexts | [docs/bounded-contexts.md](docs/bounded-contexts.md) |
+| Documentacao DDD -- Linguagem Ubiqua | [docs/ubiquitous-language.md](docs/ubiquitous-language.md) |
+| Documentacao DDD -- Arquitetura | [docs/architecture.md](docs/architecture.md) |
+| Relatorio de Seguranca | [docs/security-report.md](docs/security-report.md) |
+| Relatorio Trivy | [trivy-report.txt](trivy-report.txt) |
+| Video de Demonstracao | Pendente de publicacao |
+
+---
+
+## Qualidade de Codigo e Testes
+
+O projeto conta com uma suite abrangente de testes automatizados cobrindo todas as camadas da arquitetura.
+
+### Estrategia de Testes
+
+- **Testes Unitarios:** Entidades de dominio, Value Objects (validacao algoritmica de CPF/CNPJ, placa), Use Cases e Exception Filters.
+- **Testes de Integracao:** Controllers HTTP via Supertest, validando rotas, status codes, guards e pipes de validacao.
+- **Testes de Repositorio:** Repositories Prisma com mocks, garantindo cobertura da camada de infraestrutura.
+
+### Comandos
 
 ```bash
-# Executa todos os testes
+# Executar todos os testes
 npm test
 
-# Avalia cobertura (statements, branches, functions, lines)
+# Executar com relatorio de cobertura
 npm run test:cov
 ```
 
-### Cobertura Atual
+### Resultados
 
-| Métrica | Valor |
+| Metrica | Valor |
 |---------|-------|
-| Statements | ~86% |
-| Lines | ~85% |
-| Functions | ~83% |
-| Suites | 53 |
-| Tests | 162 |
+| Test Suites | 53 |
+| Tests | 167 |
+| Passing | 100% |
 
-O projeto entrega MVP com índices rigorosos que aferem estabilidade nos núcleos dos requisitos principais.
+### Cobertura de Codigo
+
+| Metrica | Valor |
+|---------|-------|
+| Statements | 86.47% |
+| Branches | 74.72% |
+| Functions | 83.58% |
+| Lines | 85.13% |
+
+A cobertura atende ao criterio de qualidade estabelecido (meta >= 80% em statements, functions e lines).
+
+---
+
+## Qualidade de Codigo -- Analise Estatica (Opcional)
+
+O projeto possui suporte para analise estatica com SonarQube via Docker:
+
+```bash
+docker-compose up -d sonarqube
+```
+
+A configuracao esta disponivel em `sonar-project.properties`. A ferramenta pode ser utilizada para identificacao de code smells, duplicacoes e acompanhamento de metricas de qualidade complementares ao Jest.
 
 ---
 
 ## Autoria
 
-Projeto assinado por e de exclusividade de **William Nascimento**.
+Projeto desenvolvido por **William Nascimento** como entrega do Tech Challenge Fase 1 -- Pos-graduacao em Arquitetura de Software, FIAP.
