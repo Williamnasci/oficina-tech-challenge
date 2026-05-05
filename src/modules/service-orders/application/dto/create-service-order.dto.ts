@@ -1,13 +1,25 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID, ValidateIf } from 'class-validator';
 
 export class CreateServiceOrderDto {
     @ApiProperty({
         description: 'Customer id (UUID)',
         example: '18201d07-08aa-4e2f-ae0e-35a06e0e5e49',
+        required: false,
     })
+    @ValidateIf((input: CreateServiceOrderDto) => !input.customerDocument)
     @IsUUID()
-    customerId: string;
+    customerId?: string;
+
+    @ApiProperty({
+        description: 'Customer CPF or CNPJ. Alternative to customerId.',
+        example: '52998224725',
+        required: false,
+    })
+    @ValidateIf((input: CreateServiceOrderDto) => !input.customerId)
+    @IsString()
+    @IsOptional()
+    customerDocument?: string;
 
     @ApiProperty({
         description: 'Vehicle id (UUID)',

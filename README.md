@@ -43,9 +43,11 @@ O sistema foi arquitetado para atender as seguintes necessidades de negocio:
 ### Service Orders
 
 - Criacao vinculada a cliente e veiculo ativos
+- Criacao com identificacao do cliente por `customerId` ou CPF/CNPJ (`customerDocument`)
 - Registro de diagnostico tecnico
 - Adicao de servicos do catalogo e pecas do estoque
 - Calculo automatico de orcamento
+- Monitoramento do tempo medio de execucao das ordens finalizadas
 - Fluxo completo com maquina de estado:
 
 ```
@@ -178,10 +180,10 @@ Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos 
 | Severidade | Quantidade |
 |:-----------|:-----------|
 | **CRITICAL** | 0 |
-| **HIGH** | 13 |
-| **MEDIUM** | 5 |
-| **LOW** | 2 |
-| **Total** | 20 |
+| **HIGH** | 2 |
+| **MEDIUM** | 3 |
+| **LOW** | 0 |
+| **Total** | 5 |
 
 **Observacao importante:** Todas as vulnerabilidades identificadas sao provenientes de **dependencias transitivas** -- bibliotecas indiretas herdadas por pacotes do ecossistema Node.js. Nenhuma vulnerabilidade se encontra no codigo-fonte da aplicacao.
 
@@ -189,7 +191,7 @@ Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos 
 
 - `lodash` -- Risco de poluicao de prototipo (Prototype Pollution)
 - `path-to-regexp` -- Risco de ReDoS (Regular Expression Denial of Service) no Express
-- `glob`, `tar`, `minimatch` -- Vulnerabilidades de traversal e parsing
+- `@hono/node-server` -- Risco de bypass em middleware de arquivos estaticos em versoes afetadas
 
 **Estrategia adotada:** No contexto academico do Tech Challenge, priorizou-se a solidez arquitetural (DDD, separacao de camadas, testes) como principal mecanismo de defesa. As vulnerabilidades transitivas nao afetam a logica de negocio devido ao isolamento proporcionado pela arquitetura.
 
@@ -297,18 +299,18 @@ npm run test:cov
 
 | Metrica | Valor |
 |---------|-------|
-| Test Suites | 53 |
-| Tests | 167 |
+| Test Suites | 54 |
+| Tests | 185 |
 | Passing | 100% |
 
 ### Cobertura de Codigo
 
 | Metrica | Valor |
 |---------|-------|
-| Statements | 86.47% |
-| Branches | 74.72% |
-| Functions | 83.58% |
-| Lines | 85.13% |
+| Statements | 89.01% |
+| Branches | 76.17% |
+| Functions | 86.47% |
+| Lines | 88.00% |
 
 A cobertura atende ao criterio de qualidade estabelecido (meta >= 80% em statements, functions e lines).
 

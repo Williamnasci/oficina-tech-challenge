@@ -11,24 +11,30 @@ Trivy Scanner / npm audit
 ### Resultado Geral
 
 * CRITICAL: 0
-* HIGH: 0
-* MEDIUM: 2
-* LOW: 5
+* HIGH: 2
+* MEDIUM: 3
+* LOW: 0
+* Total: 5
 
-### Principais vulnerabilidades (Exemplo de Snapshot Mitigado)
+### Principais vulnerabilidades identificadas
 
-**1. Dependência:** `braces` (via `eslint` / `micromatch`)
-* **Versão vulnerável:** `<3.0.3`
+**1. Dependência:** `lodash`
+* **Versão instalada:** `4.17.23`
+* **Severidade:** HIGH/MEDIUM
+* **Solução sugerida:** Atualizar para a versão corrigida indicada pelo scanner quando disponível no ecossistema de dependências.
+
+**2. Dependência:** `path-to-regexp`
+* **Versão instalada:** `8.3.0`
+* **Severidade:** HIGH/MEDIUM
+* **Solução sugerida:** Atualizar para `8.4.0` ou superior.
+
+**3. Dependência:** `@hono/node-server`
+* **Versão instalada:** `1.19.11`
 * **Severidade:** MEDIUM
-* **Solução sugerida:** Executar `npm audit fix` ou atualizar diretamente `braces@3.0.3` forçando no `package-lock.json`. O container já mitigou usando repositórios atualizados do Node.js 20.
-
-**2. Dependência:** `express` (via `@nestjs/platform-express`)
-* **Versão vulnerável:** `<4.19.2`
-* **Severidade:** LOW (Body parser bypass)
-* **Solução sugerida:** As dependências do NestJS v11 já possuem mitigações nativas instaladas no projeto atual. Nenhuma ação direta necessária.
+* **Solução sugerida:** Atualizar para `1.19.13` ou superior.
 
 ### Ações Recomendadas Implementadas
 
-* **Atualização de Dependências:** Foi executado rotineiramente o comando de atualização e os patches de segurança do npm estão sendo aplicados via CI/CD.
-* **Mitigação:** O Dockerfile expõe apenas as portas restritas e usa imagens oficiais e leves (`node:20.11-alpine` recomendada). 
+* **Atualização de Dependências:** Recomenda-se executar `npm audit fix` e nova varredura Trivy antes de producao.
+* **Mitigação:** O Dockerfile expõe apenas as portas necessárias e usa imagem oficial e leve (`node:20-alpine`). 
 * **Remoção de Libs Não Utilizadas:** Nenhuma biblioteca supérflua no pacote final do backend. Dependências de tipagem estão restritas localmente como `devDependencies`.

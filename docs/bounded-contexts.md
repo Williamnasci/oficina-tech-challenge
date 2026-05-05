@@ -77,7 +77,7 @@
   - `ServiceOrderService` (item de serviço vinculado)
   - `ServiceOrderStockItem` (item de estoque vinculado)
 
-**Operações:** Criar, adicionar serviços/peças, diagnóstico, orçamento, aprovação, execução, finalização, entrega, consulta.
+**Operações:** Criar, adicionar serviços/peças, diagnóstico, orçamento, aprovação, execução, finalização, entrega, consulta e monitoramento do tempo médio de execução.
 
 **Regras:**
 - Máquina de estado rígida: `RECEIVED → IN_DIAGNOSIS → WAITING_APPROVAL → IN_PROGRESS → FINISHED → DELIVERED`

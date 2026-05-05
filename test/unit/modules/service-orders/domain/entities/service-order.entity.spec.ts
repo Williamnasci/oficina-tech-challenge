@@ -19,6 +19,92 @@ describe('ServiceOrder Entity - Extended', () => {
         expect(() => order.approveBudget()).toThrow(DomainException);
     });
 
+    it('should register diagnosis and move to IN_DIAGNOSIS', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        order.registerDiagnosis('  Motor falhando  ');
+
+        expect(order.diagnosis).toBe('Motor falhando');
+        expect(order.status).toBe(ServiceOrderStatus.IN_DIAGNOSIS);
+    });
+
+    it('should throw when registering empty diagnosis', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.registerDiagnosis(' ')).toThrow(DomainException);
+    });
+
+    it('should send budget for approval when diagnosis exists', () => {
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            diagnosis: 'Trocar pastilhas',
+        });
+
+        order.sendBudgetForApproval();
+
+        expect(order.status).toBe(ServiceOrderStatus.WAITING_APPROVAL);
+    });
+
+    it('should throw when sending budget without diagnosis', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.sendBudgetForApproval()).toThrow(DomainException);
+    });
+
+    it('should start execution when WAITING_APPROVAL', () => {
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            status: ServiceOrderStatus.WAITING_APPROVAL,
+        });
+
+        order.startExecution();
+
+        expect(order.status).toBe(ServiceOrderStatus.IN_PROGRESS);
+        expect(order.startedAt).toBeTruthy();
+    });
+
+    it('should throw when starting execution before approval', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.startExecution()).toThrow(DomainException);
+    });
+
+    it('should finish when order is in progress', () => {
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            status: ServiceOrderStatus.IN_PROGRESS,
+        });
+
+        order.finish();
+
+        expect(order.status).toBe(ServiceOrderStatus.FINISHED);
+        expect(order.finishedAt).toBeTruthy();
+    });
+
+    it('should throw when finishing an order that is not in progress', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.finish()).toThrow(DomainException);
+    });
+
+    it('should deliver when order is finished', () => {
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            status: ServiceOrderStatus.FINISHED,
+        });
+
+        order.deliver();
+
+        expect(order.status).toBe(ServiceOrderStatus.DELIVERED);
+        expect(order.deliveredAt).toBeTruthy();
+    });
+
+    it('should throw when delivering an unfinished order', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.deliver()).toThrow(DomainException);
+    });
+
     it('should update services amount and recalculate total', () => {
         const order = new ServiceOrder({
             id: '1', customerId: 'c-1', vehicleId: 'v-1',

@@ -13,6 +13,7 @@ import { AddServiceToServiceOrderUseCase } from '../../../../src/modules/service
 import { AddStockItemToServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/add-stock-item-to-service-order.use-case';
 import { ApproveBudgetUseCase } from '../../../../src/modules/service-orders/application/use-cases/approve-budget.use-case';
 import { FindServiceOrdersByDocumentUseCase } from '../../../../src/modules/service-orders/application/use-cases/find-service-orders-by-document.use-case';
+import { GetAverageExecutionTimeUseCase } from '../../../../src/modules/service-orders/application/use-cases/get-average-execution-time.use-case';
 import { JwtAuthGuard } from '../../../../src/modules/auth/jwt-auth.guard';
 
 describe('ServiceOrdersController (integration)', () => {
@@ -71,6 +72,15 @@ describe('ServiceOrdersController (integration)', () => {
                 { provide: AddStockItemToServiceOrderUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 { provide: ApproveBudgetUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 { provide: FindServiceOrdersByDocumentUseCase, useValue: { execute: jest.fn().mockResolvedValue([]) } },
+                {
+                    provide: GetAverageExecutionTimeUseCase,
+                    useValue: {
+                        execute: jest.fn().mockResolvedValue({
+                            averageExecutionTimeInMinutes: 150,
+                            averageExecutionTimeFormatted: '2h 30m',
+                        }),
+                    },
+                },
             ],
         })
         .overrideGuard(JwtAuthGuard)
@@ -109,6 +119,26 @@ describe('ServiceOrdersController (integration)', () => {
             .expect(201)
             .expect(({ body }) => {
                 expect(body.id).toBe('service-order-1');
+            });
+    });
+
+    it('POST /service-orders should accept customer document', async () => {
+        await request(app.getHttpServer())
+            .post('/service-orders')
+            .send({ customerDocument: '52998224725', vehicleId: '70af8254-8ffa-42d6-8593-c0a80b2be3a5' })
+            .expect(201)
+            .expect(({ body }) => {
+                expect(body.id).toBe('service-order-1');
+            });
+    });
+
+    it('GET /service-orders/metrics/average-execution-time should return execution metrics', async () => {
+        await request(app.getHttpServer())
+            .get('/service-orders/metrics/average-execution-time')
+            .expect(200)
+            .expect(({ body }) => {
+                expect(body.averageExecutionTimeInMinutes).toBe(150);
+                expect(body.averageExecutionTimeFormatted).toBe('2h 30m');
             });
     });
 

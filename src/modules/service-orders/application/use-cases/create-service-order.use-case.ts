@@ -19,7 +19,13 @@ export class CreateServiceOrderUseCase {
     ) { }
 
     async execute(input: CreateServiceOrderDto): Promise<{ id: string }> {
-        const customer = await this.customerRepository.findById(input.customerId);
+        if (!input.customerId && !input.customerDocument) {
+            throw new DomainException('Customer id or document is required.');
+        }
+
+        const customer = input.customerDocument
+            ? await this.customerRepository.findByDocument(input.customerDocument)
+            : await this.customerRepository.findById(input.customerId as string);
 
         if (!customer) {
             throw new NotFoundException('Customer not found.');
@@ -45,7 +51,7 @@ export class CreateServiceOrderUseCase {
 
         const serviceOrder = new ServiceOrder({
             id: randomUUID(),
-            customerId: input.customerId,
+            customerId: customer.id,
             vehicleId: input.vehicleId,
         });
 

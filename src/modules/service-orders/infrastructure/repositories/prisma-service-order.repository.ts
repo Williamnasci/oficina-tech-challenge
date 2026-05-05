@@ -69,6 +69,36 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
         return data.map((item) => this.toDomain(item));
     }
 
+    async getAverageExecutionTimeInMinutes(): Promise<number> {
+        const finishedOrders = await this.prisma.serviceOrder.findMany({
+            where: {
+                startedAt: { not: null },
+                finishedAt: { not: null },
+            },
+            select: {
+                startedAt: true,
+                finishedAt: true,
+            },
+        });
+
+        if (finishedOrders.length === 0) {
+            return 0;
+        }
+
+        const totalMinutes = finishedOrders.reduce((sum, order) => {
+            const startedAt = order.startedAt as Date;
+            const finishedAt = order.finishedAt as Date;
+            const diffInMinutes = Math.max(
+                0,
+                Math.round((finishedAt.getTime() - startedAt.getTime()) / 60000),
+            );
+
+            return sum + diffInMinutes;
+        }, 0);
+
+        return Math.round(totalMinutes / finishedOrders.length);
+    }
+
     async update(order: ServiceOrder): Promise<void> {
         try {
             await this.prisma.serviceOrder.update({

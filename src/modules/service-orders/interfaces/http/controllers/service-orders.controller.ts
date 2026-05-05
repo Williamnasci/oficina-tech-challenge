@@ -34,7 +34,9 @@ import { AddStockItemToServiceOrderDto } from '../../../application/dto/add-stoc
 import { AddStockItemToServiceOrderUseCase } from '../../../application/use-cases/add-stock-item-to-service-order.use-case';
 import { ApproveBudgetUseCase } from '../../../application/use-cases/approve-budget.use-case';
 import { FindServiceOrdersByDocumentUseCase } from '../../../application/use-cases/find-service-orders-by-document.use-case';
+import { GetAverageExecutionTimeUseCase } from '../../../application/use-cases/get-average-execution-time.use-case';
 import { ServiceOrderDetailsResponseDto } from '../../../application/dto/service-order-details-response.dto';
+import { ServiceOrderMetricsResponseDto } from '../../../application/dto/service-order-metrics-response.dto';
 import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 
 @ApiTags('service-orders')
@@ -52,6 +54,7 @@ export class ServiceOrdersController {
         private readonly addStockItemToServiceOrderUseCase: AddStockItemToServiceOrderUseCase,
         private readonly approveBudgetUseCase: ApproveBudgetUseCase,
         private readonly findServiceOrdersByDocumentUseCase: FindServiceOrdersByDocumentUseCase,
+        private readonly getAverageExecutionTimeUseCase: GetAverageExecutionTimeUseCase,
     ) { }
 
     @Post()
@@ -82,6 +85,19 @@ export class ServiceOrdersController {
         @Query('document') document: string,
     ): Promise<ServiceOrderDetailsResponseDto[]> {
         return this.findServiceOrdersByDocumentUseCase.execute(document);
+    }
+
+    @Get('metrics/average-execution-time')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Get average service order execution time' })
+    @ApiResponse({
+        status: 200,
+        description: 'Average execution time retrieved successfully.',
+        type: ServiceOrderMetricsResponseDto,
+    })
+    async getAverageExecutionTime(): Promise<ServiceOrderMetricsResponseDto> {
+        return this.getAverageExecutionTimeUseCase.execute();
     }
 
     @Get(':id')

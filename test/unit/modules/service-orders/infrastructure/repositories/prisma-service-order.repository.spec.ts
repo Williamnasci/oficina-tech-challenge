@@ -66,6 +66,33 @@ describe('PrismaServiceOrderRepository', () => {
         });
     });
 
+    describe('getAverageExecutionTimeInMinutes', () => {
+        it('should return average execution time for finished orders', async () => {
+            prisma.serviceOrder.findMany.mockResolvedValue([
+                {
+                    startedAt: new Date('2026-05-05T10:00:00.000Z'),
+                    finishedAt: new Date('2026-05-05T12:00:00.000Z'),
+                },
+                {
+                    startedAt: new Date('2026-05-05T13:00:00.000Z'),
+                    finishedAt: new Date('2026-05-05T16:00:00.000Z'),
+                },
+            ]);
+
+            const result = await repository.getAverageExecutionTimeInMinutes();
+
+            expect(result).toBe(150);
+        });
+
+        it('should return zero when no finished orders exist', async () => {
+            prisma.serviceOrder.findMany.mockResolvedValue([]);
+
+            const result = await repository.getAverageExecutionTimeInMinutes();
+
+            expect(result).toBe(0);
+        });
+    });
+
     describe('update', () => {
         it('should update order', async () => {
             prisma.serviceOrder.update.mockResolvedValue(undefined);
