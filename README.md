@@ -3,7 +3,7 @@
 ![Status](https://img.shields.io/badge/status-MVP-blue)
 ![Node](https://img.shields.io/badge/node-%3E%3D18-green)
 ![NestJS](https://img.shields.io/badge/NestJS-10-red)
-![Coverage](https://img.shields.io/badge/coverage-86%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
 
 ## Descrição do Projeto
 

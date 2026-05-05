@@ -116,4 +116,4 @@ modules/<module>/
 
 **Meta:** ≥ 80% em statements, lines e functions.
 
-**Resultado atual:** 54 suítes, 185 testes, 89.01% statements, 88.00% lines e 86.47% functions. A entidade `ServiceOrder`, domínio crítico da aplicação, está com 100% de cobertura.
+**Resultado atual:** 54 suítes, 185 testes, 89.01% statements, 76.17% branches, 88.00% lines e 86.47% functions. A entidade `ServiceOrder`, domínio crítico da aplicação, está com 100% de cobertura.
