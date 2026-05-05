@@ -20,6 +20,8 @@ Glossário de termos utilizados no sistema, com equivalência entre Português (
 | Total de Serviços | `servicesAmount` | Soma dos preços dos serviços vinculados à OS |
 | Total de Peças | `stockItemsAmount` | Soma dos preços das peças vinculadas à OS |
 | Total Geral | `totalAmount` | Soma de serviços + peças |
+| Tempo Médio de Execução | `averageExecutionTimeInMinutes` | Média do tempo entre início e finalização das ordens de serviço |
+| Tempo Médio Formatado | `averageExecutionTimeFormatted` | Representação legível do tempo médio de execução |
 
 ## Status da Ordem de Serviço
 
@@ -49,6 +51,7 @@ Glossário de termos utilizados no sistema, com equivalência entre Português (
 | Entregar Veículo | `DeliverServiceOrderUseCase` | Entregar veículo ao cliente |
 | Consultar OS | `GetServiceOrderUseCase` | Visualizar detalhes de uma OS |
 | Buscar OS por Documento | `FindServiceOrdersByDocumentUseCase` | Buscar todas as OS de um cliente por CPF/CNPJ |
+| Consultar Tempo Médio de Execução | `GetAverageExecutionTimeUseCase` | Calcular o tempo médio de execução das OS finalizadas |
 
 ## Conceitos Arquiteturais
 

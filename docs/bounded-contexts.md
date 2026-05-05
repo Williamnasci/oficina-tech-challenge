@@ -81,10 +81,13 @@
 
 **Regras:**
 - Máquina de estado rígida: `RECEIVED → IN_DIAGNOSIS → WAITING_APPROVAL → IN_PROGRESS → FINISHED → DELIVERED`
+- Criação da OS pode identificar o cliente por `customerId` ou CPF/CNPJ (`customerDocument`)
+- Veículo informado deve pertencer ao cliente identificado
 - Diagnóstico é obrigatório antes do orçamento
 - Orçamento só pode ser aprovado quando em `WAITING_APPROVAL`
 - Cálculo automático de totais (domínio)
 - Baixa de estoque é transacional
+- Tempo médio de execução considera ordens com `startedAt` e `finishedAt`
 
 ---
 

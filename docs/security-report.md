@@ -33,8 +33,9 @@ Trivy Scanner / npm audit
 * **Severidade:** MEDIUM
 * **Solução sugerida:** Atualizar para `1.19.13` ou superior.
 
-### Ações Recomendadas Implementadas
+### Ações Recomendadas
 
-* **Atualização de Dependências:** Recomenda-se executar `npm audit fix` e nova varredura Trivy antes de producao.
+* **Atualização de Dependências:** Recomenda-se executar `npm audit fix` e nova varredura Trivy antes de produção.
 * **Mitigação:** O Dockerfile expõe apenas as portas necessárias e usa imagem oficial e leve (`node:20-alpine`). 
 * **Remoção de Libs Não Utilizadas:** Nenhuma biblioteca supérflua no pacote final do backend. Dependências de tipagem estão restritas localmente como `devDependencies`.
+* **Observação:** As vulnerabilidades identificadas são transitivas, provenientes de dependências do ecossistema Node.js; não foram identificadas vulnerabilidades diretamente na lógica de domínio da aplicação.

@@ -85,9 +85,10 @@
 | `OrcamentoCalculado` | (automático) | Sistema | ServiceOrder |
 | `OrcamentoEnviado` | Enviar Orçamento | Funcionário | ServiceOrder |
 | `OrcamentoAprovado` | Aprovar Orçamento | Cliente | ServiceOrder |
-| `ExecucaoIniciada` | Iniciar Execução | Funcionário | ServiceOrder |
+| `ExecucaoIniciada` | Aprovar Orçamento / Iniciar Execução | Cliente/Funcionário/Sistema | ServiceOrder |
 | `OrdemFinalizada` | Finalizar OS | Funcionário | ServiceOrder |
 | `VeiculoEntregue` | Entregar Veículo | Funcionário | ServiceOrder |
+| `TempoMedioExecucaoConsultado` | Consultar Tempo Médio de Execução | Funcionário | ServiceOrder |
 
 ---
 
@@ -97,15 +98,16 @@
 |---------|-------|--------|
 | `CadastrarCliente` | nome, CPF/CNPJ, telefone, email | CPF/CNPJ com validação algorítmica |
 | `CadastrarVeiculo` | placa, marca, modelo, ano, clienteId | Placa no formato antigo ou Mercosul |
-| `CriarOrdemDeServico` | clienteId, vehicleId | Cliente e veículo devem existir |
+| `CriarOrdemDeServico` | customerId ou customerDocument, vehicleId | Cliente e veículo devem existir; veículo deve pertencer ao cliente |
 | `RegistrarDiagnostico` | serviceOrderId, diagnosis | Diagnóstico não pode ser vazio |
 | `AdicionarServico` | serviceOrderId, serviceId, quantity | Serviço deve existir e estar ativo |
 | `AdicionarPeca` | serviceOrderId, stockItemId, quantity | Peça deve existir, estoque suficiente |
 | `EnviarOrcamento` | serviceOrderId | Diagnóstico deve estar registrado |
-| `AprovarOrcamento` | serviceOrderId | Status deve ser AGUARDANDO_APROVACAO |
-| `IniciarExecucao` | serviceOrderId | Status deve ser AGUARDANDO_APROVACAO |
+| `AprovarOrcamento` | serviceOrderId | Status deve ser AGUARDANDO_APROVACAO; OS muda para EM_EXECUCAO |
+| `IniciarExecucao` | serviceOrderId | Rota operacional alternativa; status deve ser AGUARDANDO_APROVACAO |
 | `FinalizarOS` | serviceOrderId | Status deve ser EM_EXECUCAO |
 | `EntregarVeiculo` | serviceOrderId | Status deve ser FINALIZADA |
+| `ConsultarTempoMedioExecucao` | - | Considera OS com data de início e finalização |
 
 ---
 
@@ -117,3 +119,4 @@
 | **Baixa de Estoque** | Peça adicionada à OS | Decrementar quantidade no estoque |
 | **Autenticação Obrigatória** | Qualquer operação administrativa | Validar JWT token |
 | **Consulta Pública** | Busca de OS por ID ou CPF/CNPJ | Sem autenticação necessária |
+| **Monitoramento Operacional** | Consulta administrativa de métricas | Calcular tempo médio de execução das OS finalizadas |

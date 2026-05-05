@@ -77,6 +77,12 @@ modules/<module>/
 
 **Justificativa:** Adicionar peça à OS envolve: criar/atualizar `ServiceOrderStockItem`, decrementar `StockItem.quantity` e recalcular `ServiceOrder.totalAmount`. Sem transação, uma falha parcial deixaria dados inconsistentes.
 
+### 8. Métricas Operacionais no Contexto de OS
+
+**Decisão:** Expor a métrica de tempo médio de execução em `GET /service-orders/metrics/average-execution-time`.
+
+**Justificativa:** O requisito de monitoramento operacional pertence ao contexto de Ordem de Serviço. A métrica utiliza ordens com `startedAt` e `finishedAt`, mantendo a leitura no repositório e a formatação no caso de uso `GetAverageExecutionTimeUseCase`.
+
 ## Diagrama de Camadas
 
 ```
@@ -109,3 +115,5 @@ modules/<module>/
 | Integração | Controllers via HTTP (Supertest) | Jest + Supertest |
 
 **Meta:** ≥ 80% em statements, lines e functions.
+
+**Resultado atual:** 54 suítes, 185 testes, 89.01% statements, 88.00% lines e 86.47% functions. A entidade `ServiceOrder`, domínio crítico da aplicação, está com 100% de cobertura.
