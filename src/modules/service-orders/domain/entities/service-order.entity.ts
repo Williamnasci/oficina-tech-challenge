@@ -78,6 +78,10 @@ export class ServiceOrder {
     }
 
     public startExecution(): void {
+        if (this.status === ServiceOrderStatus.IN_PROGRESS) {
+            return;
+        }
+
         if (this.status !== ServiceOrderStatus.WAITING_APPROVAL) {
             throw new DomainException('Service order must be waiting approval before starting execution.');
         }

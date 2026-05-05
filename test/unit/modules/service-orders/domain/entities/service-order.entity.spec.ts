@@ -63,6 +63,20 @@ describe('ServiceOrder Entity - Extended', () => {
         expect(order.startedAt).toBeTruthy();
     });
 
+    it('should keep execution started when already IN_PROGRESS', () => {
+        const startedAt = new Date('2026-05-05T12:00:00.000Z');
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            status: ServiceOrderStatus.IN_PROGRESS,
+            startedAt,
+        });
+
+        order.startExecution();
+
+        expect(order.status).toBe(ServiceOrderStatus.IN_PROGRESS);
+        expect(order.startedAt).toBe(startedAt);
+    });
+
     it('should throw when starting execution before approval', () => {
         const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
 
