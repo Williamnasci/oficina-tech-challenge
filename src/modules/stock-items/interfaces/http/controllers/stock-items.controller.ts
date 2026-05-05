@@ -43,7 +43,7 @@ export class StockItemsController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Create a new stock item' })
+    @ApiOperation({ summary: 'Criar peça' })
     @ApiBody({ type: CreateStockItemDto })
     @ApiResponse({ status: 201, description: 'Stock item created successfully.' })
     async create(@Body() body: CreateStockItemDto): Promise<{ id: string }> {
@@ -51,7 +51,7 @@ export class StockItemsController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'List all stock items' })
+    @ApiOperation({ summary: 'Listar peças' })
     @ApiResponse({
         status: 200,
         description: 'Stock items retrieved successfully.',
@@ -62,7 +62,7 @@ export class StockItemsController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get stock item by id' })
+    @ApiOperation({ summary: 'Buscar peça por id' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -79,7 +79,7 @@ export class StockItemsController {
 
     @Patch(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Update stock item' })
+    @ApiOperation({ summary: 'Atualizar peça' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -92,7 +92,7 @@ export class StockItemsController {
     }
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Delete (deactivate) stock item' })
+    @ApiOperation({ summary: 'Excluir (desativar) peça' })
     @ApiParam({
         name: 'id',
         required: true,

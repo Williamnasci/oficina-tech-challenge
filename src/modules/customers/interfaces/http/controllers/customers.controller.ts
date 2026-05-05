@@ -47,7 +47,7 @@ export class CustomersController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Create a new customer' })
+    @ApiOperation({ summary: 'Criar cliente' })
     @ApiBody({ type: CreateCustomerDto })
     @ApiResponse({ status: 201, description: 'Customer created successfully.' })
     async create(@Body() body: CreateCustomerDto): Promise<{ id: string }> {
@@ -55,7 +55,7 @@ export class CustomersController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'List all customers or find by document' })
+    @ApiOperation({ summary: 'Listar clientes ou buscar por documento' })
     @ApiQuery({
         name: 'document',
         required: false,
@@ -76,7 +76,7 @@ export class CustomersController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get customer by id' })
+    @ApiOperation({ summary: 'Buscar cliente por id' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -93,7 +93,7 @@ export class CustomersController {
 
     @Patch(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Update customer' })
+    @ApiOperation({ summary: 'Atualizar cliente' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -107,7 +107,7 @@ export class CustomersController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Delete (deactivate) customer' })
+    @ApiOperation({ summary: 'Excluir (desativar) cliente' })
     @ApiParam({
         name: 'id',
         required: true,

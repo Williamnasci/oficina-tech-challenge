@@ -9,7 +9,7 @@ export class AuthController {
   constructor(private jwtService: JwtService) { }
 
   @Post('login')
-  @ApiOperation({ summary: 'Login as admin to access restricted endpoints' })
+  @ApiOperation({ summary: 'Fazer login como administrador' })
   async login(@Body() loginDto: LoginDto) {
     // Hardcoded simple verification for MVP purposes
     if (loginDto.username === 'admin' && loginDto.password === 'admin') {

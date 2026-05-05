@@ -43,7 +43,7 @@ export class ServiceCatalogController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Create a new service' })
+    @ApiOperation({ summary: 'Criar serviço' })
     @ApiBody({ type: CreateServiceCatalogDto })
     @ApiResponse({ status: 201, description: 'Service created successfully.' })
     async create(@Body() body: CreateServiceCatalogDto): Promise<{ id: string }> {
@@ -51,7 +51,7 @@ export class ServiceCatalogController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'List all services' })
+    @ApiOperation({ summary: 'Listar serviços' })
     @ApiResponse({
         status: 200,
         description: 'Services retrieved successfully.',
@@ -62,7 +62,7 @@ export class ServiceCatalogController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get service by id' })
+    @ApiOperation({ summary: 'Buscar serviço por id' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -79,7 +79,7 @@ export class ServiceCatalogController {
 
     @Patch(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Update service' })
+    @ApiOperation({ summary: 'Atualizar serviço' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -93,7 +93,7 @@ export class ServiceCatalogController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Delete (deactivate) service' })
+    @ApiOperation({ summary: 'Excluir (desativar) serviço' })
     @ApiParam({
         name: 'id',
         required: true,

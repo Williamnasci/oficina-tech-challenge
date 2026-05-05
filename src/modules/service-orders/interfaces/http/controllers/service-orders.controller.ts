@@ -61,7 +61,7 @@ export class ServiceOrdersController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Create a new service order' })
+    @ApiOperation({ summary: 'Criar ordem de serviço' })
     @ApiBody({ type: CreateServiceOrderDto })
     @ApiResponse({ status: 201, description: 'Service order created successfully.' })
     async create(@Body() body: CreateServiceOrderDto): Promise<{ id: string }> {
@@ -69,7 +69,7 @@ export class ServiceOrdersController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'Search service orders by customer document (CPF/CNPJ)' })
+    @ApiOperation({ summary: 'Buscar ordens de serviço por documento do cliente (CPF/CNPJ)' })
     @ApiQuery({
         name: 'document',
         required: true,
@@ -90,7 +90,7 @@ export class ServiceOrdersController {
     @Get('metrics/average-execution-time')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
-    @ApiOperation({ summary: 'Get average service order execution time' })
+    @ApiOperation({ summary: 'Consultar tempo médio de execução das ordens de serviço' })
     @ApiResponse({
         status: 200,
         description: 'Average execution time retrieved successfully.',
@@ -101,7 +101,7 @@ export class ServiceOrdersController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get service order by id with items' })
+    @ApiOperation({ summary: 'Buscar ordem de serviço por id com itens' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -240,7 +240,7 @@ export class ServiceOrdersController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Start service order execution' })
+    @ApiOperation({ summary: 'Iniciar execução da ordem de serviço' })
     @ApiParam({
         name: 'id',
         required: true,

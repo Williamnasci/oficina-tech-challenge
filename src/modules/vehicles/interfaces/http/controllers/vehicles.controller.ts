@@ -43,7 +43,7 @@ export class VehiclesController {
 
     @Post()
     @HttpCode(HttpStatus.CREATED)
-    @ApiOperation({ summary: 'Create a new vehicle' })
+    @ApiOperation({ summary: 'Criar veículo' })
     @ApiBody({ type: CreateVehicleDto })
     @ApiResponse({ status: 201, description: 'Vehicle created successfully.' })
     async create(@Body() body: CreateVehicleDto): Promise<{ id: string }> {
@@ -51,7 +51,7 @@ export class VehiclesController {
     }
 
     @Get()
-    @ApiOperation({ summary: 'List all vehicles' })
+    @ApiOperation({ summary: 'Listar veículos' })
     @ApiResponse({
         status: 200,
         description: 'Vehicles retrieved successfully.',
@@ -62,7 +62,7 @@ export class VehiclesController {
     }
 
     @Get(':id')
-    @ApiOperation({ summary: 'Get vehicle by id' })
+    @ApiOperation({ summary: 'Buscar veículo por id' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -79,7 +79,7 @@ export class VehiclesController {
 
     @Patch(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Update vehicle' })
+    @ApiOperation({ summary: 'Atualizar veículo' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -93,7 +93,7 @@ export class VehiclesController {
 
     @Delete(':id')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Delete (deactivate) vehicle' })
+    @ApiOperation({ summary: 'Excluir (desativar) veículo' })
     @ApiParam({
         name: 'id',
         required: true,
