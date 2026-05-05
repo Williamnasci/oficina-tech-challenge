@@ -121,7 +121,7 @@ export class ServiceOrdersController {
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Register diagnosis for a service order' })
+    @ApiOperation({ summary: 'Registrar diagnóstico' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -134,11 +134,51 @@ export class ServiceOrdersController {
         await this.registerDiagnosisUseCase.execute(id, body);
     }
 
+    @Post(':id/services')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Adicionar serviço' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiBody({ type: AddServiceToServiceOrderDto })
+    @ApiResponse({ status: 204, description: 'Service added to service order successfully.' })
+    async addService(
+        @Param('id') id: string,
+        @Body() body: AddServiceToServiceOrderDto,
+    ): Promise<void> {
+        await this.addServiceToServiceOrderUseCase.execute(id, body);
+    }
+
+    @Post(':id/stock-items')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Adicionar peça' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiBody({ type: AddStockItemToServiceOrderDto })
+    @ApiResponse({ status: 204, description: 'Stock item added to service order successfully.' })
+    async addStockItem(
+        @Param('id') id: string,
+        @Body() body: AddStockItemToServiceOrderDto,
+    ): Promise<void> {
+        await this.addStockItemToServiceOrderUseCase.execute(id, body);
+    }
+
     @Patch(':id/send-budget')
     @ApiBearerAuth()
     @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Send service order budget for customer approval' })
+    @ApiOperation({ summary: 'Enviar orçamento' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -152,7 +192,7 @@ export class ServiceOrdersController {
 
     @Patch(':id/approve-budget')
     @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Approve service order budget (client action)' })
+    @ApiOperation({ summary: 'Aprovar orçamento' })
     @ApiParam({
         name: 'id',
         required: true,
@@ -162,6 +202,38 @@ export class ServiceOrdersController {
     @ApiResponse({ status: 204, description: 'Budget approved successfully.' })
     async approveBudget(@Param('id') id: string): Promise<void> {
         await this.approveBudgetUseCase.execute(id);
+    }
+
+    @Patch(':id/finish')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Finalizar serviço' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiResponse({ status: 204, description: 'Service order finished successfully.' })
+    async finish(@Param('id') id: string): Promise<void> {
+        await this.finishServiceOrderUseCase.execute(id);
+    }
+
+    @Patch(':id/deliver')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Entregar veículo' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiResponse({ status: 204, description: 'Service order delivered successfully.' })
+    async deliver(@Param('id') id: string): Promise<void> {
+        await this.deliverServiceOrderUseCase.execute(id);
     }
 
     @Patch(':id/start-execution')
@@ -178,77 +250,5 @@ export class ServiceOrdersController {
     @ApiResponse({ status: 204, description: 'Service order execution started successfully.' })
     async startExecution(@Param('id') id: string): Promise<void> {
         await this.startServiceOrderExecutionUseCase.execute(id);
-    }
-
-    @Post(':id/services')
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Add service to service order' })
-    @ApiParam({
-        name: 'id',
-        required: true,
-        description: 'Service order id (UUID)',
-        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
-    })
-    @ApiBody({ type: AddServiceToServiceOrderDto })
-    @ApiResponse({ status: 204, description: 'Service added to service order successfully.' })
-    async addService(
-        @Param('id') id: string,
-        @Body() body: AddServiceToServiceOrderDto,
-    ): Promise<void> {
-        await this.addServiceToServiceOrderUseCase.execute(id, body);
-    }
-
-    @Patch(':id/finish')
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Finish a service order' })
-    @ApiParam({
-        name: 'id',
-        required: true,
-        description: 'Service order id (UUID)',
-        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
-    })
-    @ApiResponse({ status: 204, description: 'Service order finished successfully.' })
-    async finish(@Param('id') id: string): Promise<void> {
-        await this.finishServiceOrderUseCase.execute(id);
-    }
-
-    @Patch(':id/deliver')
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Deliver a finished service order' })
-    @ApiParam({
-        name: 'id',
-        required: true,
-        description: 'Service order id (UUID)',
-        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
-    })
-    @ApiResponse({ status: 204, description: 'Service order delivered successfully.' })
-    async deliver(@Param('id') id: string): Promise<void> {
-        await this.deliverServiceOrderUseCase.execute(id);
-    }
-
-    @Post(':id/stock-items')
-    @ApiBearerAuth()
-    @UseGuards(JwtAuthGuard)
-    @HttpCode(HttpStatus.NO_CONTENT)
-    @ApiOperation({ summary: 'Add stock item to service order and decrease stock' })
-    @ApiParam({
-        name: 'id',
-        required: true,
-        description: 'Service order id (UUID)',
-        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
-    })
-    @ApiBody({ type: AddStockItemToServiceOrderDto })
-    @ApiResponse({ status: 204, description: 'Stock item added to service order successfully.' })
-    async addStockItem(
-        @Param('id') id: string,
-        @Body() body: AddStockItemToServiceOrderDto,
-    ): Promise<void> {
-        await this.addStockItemToServiceOrderUseCase.execute(id, body);
     }
 }
