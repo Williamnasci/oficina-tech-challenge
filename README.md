@@ -271,7 +271,7 @@ Para autenticação via Swagger (`http://localhost:3000/docs`):
 | Documentação DDD - Arquitetura | [docs/architecture.md](docs/architecture.md) |
 | Relatório de Segurança | [docs/security-report.md](docs/security-report.md) |
 | Relatório Trivy | [trivy-report.txt](trivy-report.txt) |
-| Vídeo de Demonstração | Pendente de publicação |
+| Vídeo de Demonstração | [Apresentação](https://drive.google.com/file/d/1TP-5E37EJjAbyQwcOiKJv8tjguq1LDrq/view?usp=sharing) |
 
 ---
 
