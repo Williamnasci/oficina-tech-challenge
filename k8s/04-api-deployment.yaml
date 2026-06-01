@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oficina-api
+  namespace: oficina
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: oficina-api
+  template:
+    metadata:
+      labels:
+        app: oficina-api
+    spec:
+      initContainers:
+        - name: prisma-migrate
+          image: oficina-tech-challenge:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - npx prisma migrate deploy
+          envFrom:
+            - configMapRef:
+                name: oficina-api-config
+            - secretRef:
+                name: oficina-secrets
+      containers:
+        - name: oficina-api
+          image: oficina-tech-challenge:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 3000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: oficina-api-config
+            - secretRef:
+                name: oficina-secrets
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+            initialDelaySeconds: 30
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi

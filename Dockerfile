@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install
+RUN npm ci
 
 COPY . .
 
@@ -19,7 +19,7 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm install --only=production
+RUN npm ci --omit=dev
 COPY --from=builder /usr/src/app/dist ./dist
 
 RUN npx prisma generate

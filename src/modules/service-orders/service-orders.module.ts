@@ -11,6 +11,10 @@ import { AddStockItemToServiceOrderUseCase } from './application/use-cases/add-s
 import { ApproveBudgetUseCase } from './application/use-cases/approve-budget.use-case';
 import { FindServiceOrdersByDocumentUseCase } from './application/use-cases/find-service-orders-by-document.use-case';
 import { GetAverageExecutionTimeUseCase } from './application/use-cases/get-average-execution-time.use-case';
+import { GetServiceOrderStatusUseCase } from './application/use-cases/get-service-order-status.use-case';
+import { HandleBudgetDecisionUseCase } from './application/use-cases/handle-budget-decision.use-case';
+import { ListOperationalServiceOrdersUseCase } from './application/use-cases/list-operational-service-orders.use-case';
+import { OpenServiceOrderUseCase } from './application/use-cases/open-service-order.use-case';
 import { ServiceOrderRepository } from './domain/repositories/service-order.repository';
 import { PrismaServiceOrderRepository } from './infrastructure/repositories/prisma-service-order.repository';
 import { ServiceOrdersController } from './interfaces/http/controllers/service-orders.controller';
@@ -33,6 +37,10 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
         ApproveBudgetUseCase,
         FindServiceOrdersByDocumentUseCase,
         GetAverageExecutionTimeUseCase,
+        GetServiceOrderStatusUseCase,
+        HandleBudgetDecisionUseCase,
+        ListOperationalServiceOrdersUseCase,
+        OpenServiceOrderUseCase,
         {
             provide: ServiceOrderRepository,
             useClass: PrismaServiceOrderRepository,

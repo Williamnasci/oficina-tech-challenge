@@ -60,6 +60,41 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
         return data.map((item) => this.toDomain(item));
     }
 
+    async findOperationalQueue(): Promise<ServiceOrder[]> {
+        const priority: Record<ServiceOrderStatus, number> = {
+            [ServiceOrderStatus.IN_PROGRESS]: 0,
+            [ServiceOrderStatus.WAITING_APPROVAL]: 1,
+            [ServiceOrderStatus.IN_DIAGNOSIS]: 2,
+            [ServiceOrderStatus.RECEIVED]: 3,
+            [ServiceOrderStatus.FINISHED]: 4,
+            [ServiceOrderStatus.DELIVERED]: 5,
+        };
+
+        const data = await this.prisma.serviceOrder.findMany({
+            where: {
+                status: {
+                    in: [
+                        ServiceOrderStatus.IN_PROGRESS,
+                        ServiceOrderStatus.WAITING_APPROVAL,
+                        ServiceOrderStatus.IN_DIAGNOSIS,
+                        ServiceOrderStatus.RECEIVED,
+                    ],
+                },
+            },
+            orderBy: { createdAt: 'asc' },
+        });
+
+        return data
+            .map((item) => this.toDomain(item))
+            .sort((left, right) => {
+                const statusDiff = priority[left.status] - priority[right.status];
+
+                if (statusDiff !== 0) return statusDiff;
+
+                return left.createdAt.getTime() - right.createdAt.getTime();
+            });
+    }
+
     async findByCustomerId(customerId: string): Promise<ServiceOrder[]> {
         const data = await this.prisma.serviceOrder.findMany({
             where: { customerId },

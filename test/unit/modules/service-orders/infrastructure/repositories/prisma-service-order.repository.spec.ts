@@ -58,6 +58,53 @@ describe('PrismaServiceOrderRepository', () => {
         });
     });
 
+    describe('findOperationalQueue', () => {
+        it('should return active orders ordered by status priority and creation date', async () => {
+            const oldWaiting = {
+                ...mockDbOrder,
+                id: 'waiting-old',
+                status: ServiceOrderStatus.WAITING_APPROVAL,
+                createdAt: new Date('2026-05-05T10:00:00.000Z'),
+            };
+            const newProgress = {
+                ...mockDbOrder,
+                id: 'progress-new',
+                status: ServiceOrderStatus.IN_PROGRESS,
+                createdAt: new Date('2026-05-05T12:00:00.000Z'),
+            };
+            const oldReceived = {
+                ...mockDbOrder,
+                id: 'received-old',
+                status: ServiceOrderStatus.RECEIVED,
+                createdAt: new Date('2026-05-05T08:00:00.000Z'),
+            };
+
+            prisma.serviceOrder.findMany.mockResolvedValue([oldReceived, oldWaiting, newProgress]);
+
+            const result = await repository.findOperationalQueue();
+
+            expect(prisma.serviceOrder.findMany).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    where: expect.objectContaining({
+                        status: expect.objectContaining({
+                            in: expect.arrayContaining([
+                                ServiceOrderStatus.IN_PROGRESS,
+                                ServiceOrderStatus.WAITING_APPROVAL,
+                                ServiceOrderStatus.IN_DIAGNOSIS,
+                                ServiceOrderStatus.RECEIVED,
+                            ]),
+                        }),
+                    }),
+                }),
+            );
+            expect(result.map((order) => order.id)).toEqual([
+                'progress-new',
+                'waiting-old',
+                'received-old',
+            ]);
+        });
+    });
+
     describe('findByCustomerId', () => {
         it('should return orders by customer', async () => {
             prisma.serviceOrder.findMany.mockResolvedValue([mockDbOrder]);

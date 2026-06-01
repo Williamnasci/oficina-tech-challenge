@@ -35,8 +35,16 @@ import { AddStockItemToServiceOrderUseCase } from '../../../application/use-case
 import { ApproveBudgetUseCase } from '../../../application/use-cases/approve-budget.use-case';
 import { FindServiceOrdersByDocumentUseCase } from '../../../application/use-cases/find-service-orders-by-document.use-case';
 import { GetAverageExecutionTimeUseCase } from '../../../application/use-cases/get-average-execution-time.use-case';
+import { GetServiceOrderStatusUseCase } from '../../../application/use-cases/get-service-order-status.use-case';
+import { HandleBudgetDecisionUseCase } from '../../../application/use-cases/handle-budget-decision.use-case';
+import { ListOperationalServiceOrdersUseCase } from '../../../application/use-cases/list-operational-service-orders.use-case';
+import { OpenServiceOrderUseCase } from '../../../application/use-cases/open-service-order.use-case';
+import { BudgetDecisionDto } from '../../../application/dto/budget-decision.dto';
+import { OpenServiceOrderDto } from '../../../application/dto/open-service-order.dto';
 import { ServiceOrderDetailsResponseDto } from '../../../application/dto/service-order-details-response.dto';
 import { ServiceOrderMetricsResponseDto } from '../../../application/dto/service-order-metrics-response.dto';
+import { ServiceOrderResponseDto } from '../../../application/dto/service-order-response.dto';
+import { ServiceOrderStatusResponseDto } from '../../../application/dto/service-order-status-response.dto';
 import { JwtAuthGuard } from '../../../../auth/jwt-auth.guard';
 
 @ApiTags('service-orders')
@@ -55,6 +63,10 @@ export class ServiceOrdersController {
         private readonly approveBudgetUseCase: ApproveBudgetUseCase,
         private readonly findServiceOrdersByDocumentUseCase: FindServiceOrdersByDocumentUseCase,
         private readonly getAverageExecutionTimeUseCase: GetAverageExecutionTimeUseCase,
+        private readonly getServiceOrderStatusUseCase: GetServiceOrderStatusUseCase,
+        private readonly handleBudgetDecisionUseCase: HandleBudgetDecisionUseCase,
+        private readonly listOperationalServiceOrdersUseCase: ListOperationalServiceOrdersUseCase,
+        private readonly openServiceOrderUseCase: OpenServiceOrderUseCase,
     ) { }
 
     @Post()
@@ -66,6 +78,17 @@ export class ServiceOrdersController {
     @ApiResponse({ status: 201, description: 'Service order created successfully.' })
     async create(@Body() body: CreateServiceOrderDto): Promise<{ id: string }> {
         return this.createServiceOrderUseCase.execute(body);
+    }
+
+    @Post('opening')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @HttpCode(HttpStatus.CREATED)
+    @ApiOperation({ summary: 'Abrir ordem de servico com cliente, veiculo, servicos e pecas' })
+    @ApiBody({ type: OpenServiceOrderDto })
+    @ApiResponse({ status: 201, description: 'Service order opened successfully.' })
+    async open(@Body() body: OpenServiceOrderDto): Promise<{ id: string }> {
+        return this.openServiceOrderUseCase.execute(body);
     }
 
     @Get()
@@ -85,6 +108,19 @@ export class ServiceOrdersController {
         @Query('document') document: string,
     ): Promise<ServiceOrderDetailsResponseDto[]> {
         return this.findServiceOrdersByDocumentUseCase.execute(document);
+    }
+
+    @Get('operational-queue')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
+    @ApiOperation({ summary: 'Listar ordens de servico operacionais por prioridade' })
+    @ApiResponse({
+        status: 200,
+        description: 'Operational service orders retrieved successfully.',
+        type: [ServiceOrderResponseDto],
+    })
+    async listOperationalQueue(): Promise<ServiceOrderResponseDto[]> {
+        return this.listOperationalServiceOrdersUseCase.execute();
     }
 
     @Get('metrics/average-execution-time')
@@ -115,6 +151,23 @@ export class ServiceOrdersController {
     })
     async findById(@Param('id') id: string): Promise<ServiceOrderDetailsResponseDto> {
         return this.getServiceOrderUseCase.execute(id);
+    }
+
+    @Get(':id/status')
+    @ApiOperation({ summary: 'Consultar status da ordem de servico' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiResponse({
+        status: 200,
+        description: 'Service order status retrieved successfully.',
+        type: ServiceOrderStatusResponseDto,
+    })
+    async getStatus(@Param('id') id: string): Promise<ServiceOrderStatusResponseDto> {
+        return this.getServiceOrderStatusUseCase.execute(id);
     }
 
     @Patch(':id/diagnosis')
@@ -202,6 +255,24 @@ export class ServiceOrdersController {
     @ApiResponse({ status: 204, description: 'Budget approved successfully.' })
     async approveBudget(@Param('id') id: string): Promise<void> {
         await this.approveBudgetUseCase.execute(id);
+    }
+
+    @Post(':id/budget-decision')
+    @HttpCode(HttpStatus.NO_CONTENT)
+    @ApiOperation({ summary: 'Receber decisao externa de orcamento' })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Service order id (UUID)',
+        example: 'e3b5c409-81d7-48df-8caf-627c467b8711',
+    })
+    @ApiBody({ type: BudgetDecisionDto })
+    @ApiResponse({ status: 204, description: 'Budget decision processed successfully.' })
+    async handleBudgetDecision(
+        @Param('id') id: string,
+        @Body() body: BudgetDecisionDto,
+    ): Promise<void> {
+        await this.handleBudgetDecisionUseCase.execute(id, body);
     }
 
     @Patch(':id/finish')

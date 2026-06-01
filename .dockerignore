@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.git
+.vscode
+.env
+*.log
+trivy-report.txt
+trivy-report.json
+sonarqube_data
+sonarqube_extensions
+sonarqube_logs

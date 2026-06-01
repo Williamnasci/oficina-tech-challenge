@@ -77,6 +77,15 @@ export class ServiceOrder {
         this.touch();
     }
 
+    public rejectBudget(): void {
+        if (this.status !== ServiceOrderStatus.WAITING_APPROVAL) {
+            throw new DomainException('Only service orders waiting approval can be rejected.');
+        }
+
+        this.status = ServiceOrderStatus.IN_DIAGNOSIS;
+        this.touch();
+    }
+
     public startExecution(): void {
         if (this.status === ServiceOrderStatus.IN_PROGRESS) {
             return;

@@ -19,6 +19,23 @@ describe('ServiceOrder Entity - Extended', () => {
         expect(() => order.approveBudget()).toThrow(DomainException);
     });
 
+    it('should reject budget and return to diagnosis when WAITING_APPROVAL', () => {
+        const order = new ServiceOrder({
+            id: '1', customerId: 'c-1', vehicleId: 'v-1',
+            status: ServiceOrderStatus.WAITING_APPROVAL,
+        });
+
+        order.rejectBudget();
+
+        expect(order.status).toBe(ServiceOrderStatus.IN_DIAGNOSIS);
+    });
+
+    it('should throw when rejecting budget not in WAITING_APPROVAL', () => {
+        const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
+
+        expect(() => order.rejectBudget()).toThrow(DomainException);
+    });
+
     it('should register diagnosis and move to IN_DIAGNOSIS', () => {
         const order = new ServiceOrder({ id: '1', customerId: 'c-1', vehicleId: 'v-1' });
 

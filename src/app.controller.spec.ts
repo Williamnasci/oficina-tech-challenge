@@ -15,8 +15,17 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return API status message', () => {
+      expect(appController.getHello()).toBe('Oficina API is running.');
+    });
+  });
+
+  describe('health', () => {
+    it('should return health status', () => {
+      expect(appController.getHealth()).toEqual({
+        status: 'ok',
+        timestamp: expect.any(String),
+      });
     });
   });
 });

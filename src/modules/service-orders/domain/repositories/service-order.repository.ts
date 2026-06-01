@@ -6,6 +6,7 @@ export abstract class ServiceOrderRepository {
     abstract findById(id: string): Promise<ServiceOrder | null>;
     abstract findDetailsById(id: string): Promise<ServiceOrderDetailsResponseDto | null>;
     abstract findAll(): Promise<ServiceOrder[]>;
+    abstract findOperationalQueue(): Promise<ServiceOrder[]>;
     abstract findByCustomerId(customerId: string): Promise<ServiceOrder[]>;
     abstract getAverageExecutionTimeInMinutes(): Promise<number>;
     abstract update(serviceOrder: ServiceOrder): Promise<void>;
