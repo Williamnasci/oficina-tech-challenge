@@ -106,13 +106,13 @@ Estrutura opinativa e modular, com injeção de dependências nativa, impulsiona
 
 O projeto adota uma estrutura em camadas baseada em **Domain-Driven Design (DDD)** para maximizar a resiliência a mudanças e a proteção do núcleo de negócios:
 
-- **Domain:** Coração da aplicação; entidades, value objects, enums, regras de negócio e contratos de repositório. Totalmente isolado de frameworks.
-- **Application:** Orquestração; casos de uso, DTOs de entrada/saída e mappers.
+- **Domain:** Coração da aplicação; entidades, value objects, enums, regras de negócio e contratos de repositório. Não depende de NestJS, Prisma, Swagger, DTOs de aplicação ou adapters externos.
+- **Application:** Orquestração; casos de uso, DTOs de entrada/saída e mappers. Nesta implementação NestJS, os casos de uso usam decorators de injeção de dependência como decisão pragmática, sem depender de Prisma ou repositórios concretos.
 - **Interfaces/HTTP:** Controllers REST com decorators Swagger e guards de autenticação.
 - **Infrastructure:** Implementações concretas dos repositórios (Prisma) e filtros de exceção.
 - **Shared:** Exceptions de domínio, filtros globais (Prisma/Domain) e serviço singleton do banco.
 
-Essa abordagem garante **baixo acoplamento** entre as camadas, **alta coesão** dentro de cada módulo e **facilidade de manutenção**, permitindo que alterações em frameworks ou na infraestrutura não afetem as regras de negócio.
+Essa abordagem garante **baixo acoplamento** entre as camadas, **alta coesão** dentro de cada módulo e **facilidade de manutenção**. As regras centrais ficam no domínio e nos casos de uso; detalhes como HTTP, Swagger, Prisma e persistência transacional ficam nas camadas externas.
 
 ---
 
@@ -148,7 +148,7 @@ A aplicação modela de forma relacional estrita: `Customer`, `Vehicle`, `Servic
 
 - Integridade referencial entre cliente, veículo e suas ordens de serviço.
 - Composição da ordem com `ServiceOrderService` (mão de obra baseada no catálogo).
-- Cálculo isolado de consumo via `ServiceOrderStockItem` (peças e insumos com baixa real de inventário).
+- Cálculo isolado de consumo via `ServiceOrderStockItem` (peças e insumos com baixa real de inventário). A baixa de estoque e a atualização dos itens da OS são executadas no adapter Prisma dentro de transação para preservar atomicidade.
 - Soft delete via campo `isActive` em Customer, Vehicle, ServiceCatalog e StockItem.
 
 ---
@@ -169,9 +169,9 @@ O projeto incorpora práticas de segurança em múltiplas camadas, combinando ha
 
 A modelagem baseada em DDD contribui diretamente para a postura de segurança do sistema:
 
-- **Isolamento de dependências:** o núcleo de negócio (Domain) não depende de frameworks externos, bloqueando infiltrações por dependências transitivas (supply chain).
+- **Isolamento de dependências:** o núcleo de negócio (Domain) não depende de frameworks externos, DTOs de aplicação ou ORM, bloqueando infiltrações por dependências transitivas (supply chain).
 - **Redução da superfície de ataque:** adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
-- **Facilidade de patching:** casos de uso são independentes de atualizações de bibliotecas externas, mitigando quebras durante incidentes reativos.
+- **Facilidade de patching:** casos de uso dependem de contratos abstratos de repositório, mitigando quebras quando bibliotecas externas ou adapters concretos são atualizados.
 
 ### Resultado da Análise de Vulnerabilidades (Trivy)
 
