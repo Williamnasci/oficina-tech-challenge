@@ -8,7 +8,7 @@ import { PrismaService } from '../../../../shared/infrastructure/prisma/prisma.s
 import { ServiceOrder } from '../../domain/entities/service-order.entity';
 import { ServiceOrderStatus } from '../../domain/enums/service-order-status.enum';
 import { ServiceOrderRepository } from '../../domain/repositories/service-order.repository';
-import { ServiceOrderDetailsResponseDto } from '../../application/dto/service-order-details-response.dto';
+import { ServiceOrderDetailsReadModel } from '../../domain/repositories/service-order-details.read-model';
 
 @Injectable()
 export class PrismaServiceOrderRepository implements ServiceOrderRepository {
@@ -236,7 +236,7 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
         });
     }
 
-    async findDetailsById(id: string): Promise<ServiceOrderDetailsResponseDto | null> {
+    async findDetailsById(id: string): Promise<ServiceOrderDetailsReadModel | null> {
         const data = await this.prisma.serviceOrder.findUnique({
             where: { id },
             include: {

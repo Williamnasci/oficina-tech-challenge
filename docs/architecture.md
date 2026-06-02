@@ -46,9 +46,10 @@ modules/<module>/
 ```
 
 **Justificativa:**
-- O domínio **não depende** de frameworks (NestJS, Prisma)
-- As dependências apontam de fora para dentro (Dependency Rule da Clean Arch)
-- Troca de ORM ou framework web não afeta regras de negócio
+- O domínio **não depende** de frameworks (NestJS, Prisma), DTOs de aplicação ou adapters externos.
+- As dependências apontam de fora para dentro (Dependency Rule da Clean Arch) nos contratos e entidades de domínio.
+- A camada de aplicação usa recursos de DI do NestJS como decisão pragmática, mas depende de contratos abstratos, não de Prisma ou repositórios concretos.
+- Troca de ORM ou framework web não deve afetar regras centrais de negócio, embora adapters e configuração de DI precisem ser atualizados.
 
 ### 4. Repository Pattern com Abstract Classes
 
