@@ -7,6 +7,8 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { StockItemsModule } from './modules/stock-items/stock-items.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -19,5 +21,7 @@ import { AuthModule } from './modules/auth/auth.module';
     StockItemsModule,
     ServiceCatalogModule,
   ],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule { }
