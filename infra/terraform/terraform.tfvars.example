@@ -1,0 +1,17 @@
+kube_config_path    = "~/.kube/config"
+kube_config_context = null
+
+namespace_name  = "oficina-terraform"
+app_name        = "oficina-api"
+config_map_name = "oficina-api-config"
+secret_name     = "oficina-secrets"
+
+app_port       = 3000
+jwt_expires_in = "1d"
+cors_origin    = "*"
+
+postgres_user     = "postgres"
+postgres_password = "supersecretpassword"
+postgres_db       = "oficina_db"
+
+jwt_secret = "supersecretkey"
