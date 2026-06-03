@@ -34,6 +34,36 @@ variable "secret_name" {
   default     = "oficina-secrets"
 }
 
+variable "postgres_service_name" {
+  description = "Nome do Service Kubernetes do PostgreSQL."
+  type        = string
+  default     = "postgres"
+}
+
+variable "postgres_statefulset_name" {
+  description = "Nome do StatefulSet Kubernetes do PostgreSQL."
+  type        = string
+  default     = "postgres"
+}
+
+variable "postgres_volume_claim_name" {
+  description = "Nome do template de PersistentVolumeClaim usado pelo PostgreSQL."
+  type        = string
+  default     = "postgres-data"
+}
+
+variable "postgres_image" {
+  description = "Imagem Docker usada pelo container PostgreSQL."
+  type        = string
+  default     = "postgres:15"
+}
+
+variable "postgres_storage_size" {
+  description = "Tamanho do volume persistente solicitado para o PostgreSQL."
+  type        = string
+  default     = "1Gi"
+}
+
 variable "app_port" {
   description = "Porta HTTP usada pela aplicação NestJS."
   type        = number
@@ -65,7 +95,7 @@ variable "postgres_password" {
   sensitive   = true
 }
 
-variable "postgres_db" {
+variable "postgres_database" {
   description = "Nome do banco de dados PostgreSQL."
   type        = string
   default     = "oficina_db"

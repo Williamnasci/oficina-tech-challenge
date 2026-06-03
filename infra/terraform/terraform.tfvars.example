@@ -10,8 +10,13 @@ app_port       = 3000
 jwt_expires_in = "1d"
 cors_origin    = "*"
 
-postgres_user     = "postgres"
-postgres_password = "supersecretpassword"
-postgres_db       = "oficina_db"
+postgres_service_name      = "postgres"
+postgres_statefulset_name  = "postgres"
+postgres_volume_claim_name = "postgres-data"
+postgres_image             = "postgres:15"
+postgres_storage_size      = "1Gi"
+postgres_user              = "postgres"
+postgres_password          = "supersecretpassword"
+postgres_database          = "oficina_db"
 
 jwt_secret = "supersecretkey"
