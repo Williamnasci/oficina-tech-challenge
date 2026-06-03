@@ -224,6 +224,55 @@ O relatório completo está disponível em `trivy-report.txt`.
 
 ---
 
+## CI/CD - GitHub Actions
+
+A Fase 2 inclui uma pipeline de CI/CD em `.github/workflows/ci-cd.yml` para validar qualidade, imagem Docker, seguranca e manifests Kubernetes.
+
+### Quando executa
+
+- `push` na branch `main`
+- `pull_request` para a branch `main`
+- execucao manual por `workflow_dispatch`
+
+### Jobs da pipeline
+
+| Job | Objetivo | Comandos principais |
+|-----|----------|---------------------|
+| `quality` | Instalar dependencias, buildar a aplicacao e executar testes | `npm ci`, `npm run build`, `npm test -- --runInBand` |
+| `docker` | Buildar a imagem Docker e publicar no Docker Hub quando houver secrets disponiveis | `docker build`, `docker tag`, `docker push` |
+| `security` | Executar scan Trivy da imagem Docker e do filesystem | `aquasecurity/trivy-action` |
+| `kubernetes-validate` | Validar renderizacao dos manifests Kubernetes sem aplicar deploy | `kubectl kustomize k8s` |
+
+### Imagens publicadas
+
+Em eventos com acesso aos secrets do repositorio, a pipeline publica:
+
+```text
+DOCKERHUB_USERNAME/oficina-tech-challenge:latest
+DOCKERHUB_USERNAME/oficina-tech-challenge:<github.sha>
+```
+
+Em pull requests, a imagem e buildada para validacao, mas nao e enviada ao Docker Hub.
+
+### Secrets necessarios
+
+Configurar no GitHub em `Settings > Secrets and variables > Actions`:
+
+```text
+DOCKERHUB_USERNAME
+DOCKERHUB_TOKEN
+```
+
+Nenhum secret real deve ser versionado no repositorio.
+
+### Limitacoes atuais
+
+- A pipeline valida os manifests Kubernetes, mas ainda nao aplica deploy em cluster remoto.
+- Terraform, observabilidade e deploy cloud ficam para etapas posteriores.
+- O scan Trivy nao bloqueia a entrega por vulnerabilidades transitivas ja conhecidas; o resultado aparece no log da pipeline para acompanhamento.
+
+---
+
 ## Como Executar
 
 1. Configure o arquivo `.env` na raiz do projeto:
