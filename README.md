@@ -278,7 +278,7 @@ Nenhum secret real deve ser versionado no repositorio.
 1. Configure o arquivo `.env` na raiz do projeto:
 
 ```env
-DATABASE_URL="postgresql://postgres:SUA_SENHA@localhost:5433/oficina_db?schema=public"
+DATABASE_URL="postgresql://postgres:supersecretpassword@localhost:15432/oficina_db?schema=public"
 JWT_SECRET=sua_chave_secreta_aqui
 JWT_EXPIRES_IN=1d
 CORS_ORIGIN=http://localhost:3000
