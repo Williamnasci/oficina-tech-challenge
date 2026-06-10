@@ -40,6 +40,8 @@ jobs:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/oficina_db?schema=public
       JWT_SECRET: test-secret
       JWT_EXPIRES_IN: 1d
+      AUTH_DEMO_USERNAME: admin
+      AUTH_DEMO_PASSWORD: admin
 
     steps:
       - name: Checkout code

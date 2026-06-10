@@ -252,6 +252,8 @@ DOCKERHUB_TOKEN
 DATABASE_URL="postgresql://postgres:supersecretpassword@localhost:15432/oficina_db?schema=public"
 JWT_SECRET=sua_chave_secreta_aqui
 JWT_EXPIRES_IN=1d
+AUTH_DEMO_USERNAME=admin
+AUTH_DEMO_PASSWORD=admin
 CORS_ORIGIN=http://localhost:3000
 PORT=3000
 ```
@@ -293,6 +295,11 @@ Use o token retornado como Bearer Token no Swagger.
 
 O projeto possui testes automatizados unitários e de integração para os fluxos principais da aplicação.
 
+Última validação local registrada:
+
+- 59 suítes de teste.
+- 206 testes automatizados.
+
 Comandos:
 
 ```bash
@@ -306,6 +313,7 @@ npm run test:cov
 |-----------|-------|
 | Arquitetura | `docs/architecture.md` |
 | Bounded Contexts | `docs/bounded-contexts.md` |
+| Domain Storytelling | `docs/domain-storytelling.md` |
 | Event Storming | `docs/event-storming.md` |
 | Linguagem Ubíqua | `docs/ubiquitous-language.md` |
 | Kubernetes | `docs/kubernetes.md` |

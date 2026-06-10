@@ -22,7 +22,7 @@ O sistema é um **backend monolítico** construído com **NestJS**, aplicando co
 
 **Decisão:** Adotar uma arquitetura monolítica modular.
 
-**Justificativa:** Para a Fase 1 (MVP), a complexidade de um sistema distribuído não se justifica. O monolito modular permite desenvolvimento rápido, deploys simples e compartilhamento de transações ACID via Prisma, enquanto os módulos bem delimitados facilitam uma futura decomposição em microserviços se necessário.
+**Justificativa:** Para o escopo acadêmico do Tech Challenge, a complexidade de um sistema distribuído não se justifica. O monolito modular permite desenvolvimento objetivo, deploys simples e compartilhamento de transações ACID via Prisma, enquanto os módulos bem delimitados preservam baixo acoplamento e facilitam uma futura decomposição se necessário.
 
 ### 2. DDD Tático (Entidades, VOs, Repositórios)
 
@@ -117,4 +117,4 @@ modules/<module>/
 
 **Meta:** ≥ 80% em statements, lines e functions.
 
-**Resultado atual:** 54 suítes, 185 testes, 89.01% statements, 76.17% branches, 88.00% lines e 86.47% functions. A entidade `ServiceOrder`, domínio crítico da aplicação, está com 100% de cobertura.
+**Resultado atual:** a última validação local executou 59 suítes e 206 testes com sucesso. A suíte inclui testes unitários e de integração, incluindo fluxo transacional real de orçamento e baixa de estoque.
