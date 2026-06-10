@@ -7,7 +7,10 @@ ENV DATABASE_URL="postgresql://postgres:postgres@localhost:5432/oficina_db?schem
 COPY package*.json ./
 COPY prisma ./prisma/
 
-RUN npm ci
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci --no-audit --no-fund
 
 COPY . .
 
@@ -24,7 +27,10 @@ COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma.config.ts ./
 
-RUN npm ci --omit=dev
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm ci --omit=dev --no-audit --no-fund
 COPY --from=builder /usr/src/app/dist ./dist
 
 RUN DATABASE_URL="postgresql://postgres:postgres@localhost:5432/oficina_db?schema=public" npx prisma generate
