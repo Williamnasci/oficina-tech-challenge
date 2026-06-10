@@ -262,7 +262,7 @@ PORT=3000
 
 ```bash
 npm install
-docker compose up -d
+docker compose up -d db
 npm run start:dev
 ```
 
