@@ -11,10 +11,12 @@ async function bootstrap() {
 
   app.use(helmet());
 
+  const corsOrigin = process.env.CORS_ORIGIN || '*';
+
   app.enableCors({
-    origin: process.env.CORS_ORIGIN || '*',
+    origin: corsOrigin,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true,
+    credentials: corsOrigin !== '*',
   });
 
   app.useGlobalPipes(

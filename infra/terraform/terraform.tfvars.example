@@ -9,6 +9,8 @@ secret_name     = "oficina-secrets"
 app_port       = 3000
 jwt_expires_in = "1d"
 cors_origin    = "*"
+auth_demo_username = "admin"
+auth_demo_password = "admin"
 
 api_deployment_name   = "oficina-api"
 api_service_name      = "oficina-api"

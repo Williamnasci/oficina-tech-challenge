@@ -4,12 +4,16 @@ import { UnauthorizedException } from '@nestjs/common';
 describe('AuthController', () => {
     let controller: AuthController;
     let jwtService: any;
+    let configService: any;
 
     beforeEach(() => {
         jwtService = {
             sign: jest.fn().mockReturnValue('token-123'),
         };
-        controller = new AuthController(jwtService);
+        configService = {
+            get: jest.fn((_key: string, defaultValue: string) => defaultValue),
+        };
+        controller = new AuthController(jwtService, configService);
     });
 
     it('should login with valid credentials', async () => {

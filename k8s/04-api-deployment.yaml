@@ -21,6 +21,10 @@ spec:
             - sh
             - -c
             - npx prisma migrate deploy
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
           envFrom:
             - configMapRef:
                 name: oficina-api-config
@@ -30,6 +34,10 @@ spec:
         - name: oficina-api
           image: oficina-tech-challenge:latest
           imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
           ports:
             - containerPort: 3000
               name: http

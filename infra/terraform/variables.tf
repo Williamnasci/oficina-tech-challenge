@@ -172,6 +172,19 @@ variable "jwt_expires_in" {
   default     = "1d"
 }
 
+variable "auth_demo_username" {
+  description = "Usuário demonstrativo usado no login acadêmico da API."
+  type        = string
+  default     = "admin"
+}
+
+variable "auth_demo_password" {
+  description = "Senha demonstrativa usada no login acadêmico da API."
+  type        = string
+  default     = "admin"
+  sensitive   = true
+}
+
 variable "cors_origin" {
   description = "Origem CORS permitida para a API."
   type        = string

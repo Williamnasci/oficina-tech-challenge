@@ -30,9 +30,10 @@ resource "kubernetes_config_map" "api_config" {
   }
 
   data = {
-    PORT           = tostring(var.app_port)
-    JWT_EXPIRES_IN = var.jwt_expires_in
-    CORS_ORIGIN    = var.cors_origin
+    PORT               = tostring(var.app_port)
+    JWT_EXPIRES_IN     = var.jwt_expires_in
+    CORS_ORIGIN        = var.cors_origin
+    AUTH_DEMO_USERNAME = var.auth_demo_username
   }
 }
 
@@ -46,11 +47,12 @@ resource "kubernetes_secret" "app_secrets" {
   type = "Opaque"
 
   data = {
-    POSTGRES_USER     = var.postgres_user
-    POSTGRES_PASSWORD = var.postgres_password
-    POSTGRES_DB       = var.postgres_database
-    JWT_SECRET        = var.jwt_secret
-    DATABASE_URL      = local.database_url
+    POSTGRES_USER      = var.postgres_user
+    POSTGRES_PASSWORD  = var.postgres_password
+    POSTGRES_DB        = var.postgres_database
+    JWT_SECRET         = var.jwt_secret
+    AUTH_DEMO_PASSWORD = var.auth_demo_password
+    DATABASE_URL       = local.database_url
   }
 }
 
@@ -228,6 +230,12 @@ resource "kubernetes_deployment" "api" {
           image_pull_policy = var.api_image_pull_policy
           command           = ["sh", "-c", "npx prisma migrate deploy"]
 
+          security_context {
+            run_as_non_root            = true
+            run_as_user                = 1000
+            allow_privilege_escalation = false
+          }
+
           env_from {
             config_map_ref {
               name = kubernetes_config_map.api_config.metadata[0].name
@@ -245,6 +253,12 @@ resource "kubernetes_deployment" "api" {
           name              = var.app_name
           image             = var.api_image
           image_pull_policy = var.api_image_pull_policy
+
+          security_context {
+            run_as_non_root            = true
+            run_as_user                = 1000
+            allow_privilege_escalation = false
+          }
 
           port {
             container_port = var.app_port
