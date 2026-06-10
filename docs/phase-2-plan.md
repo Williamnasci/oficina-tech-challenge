@@ -62,9 +62,10 @@ A Fase 2 foi concluída com os seguintes pilares:
 
 - Workflow em `.github/workflows/ci-cd.yml`.
 - Job de qualidade com PostgreSQL, Prisma Client, migrations, build e testes.
-- Docker build e push para Docker Hub somente na branch `main` e fora de Pull Requests.
+- Docker build e push para Docker Hub somente na branch `main` e fora de Pull Requests (alinhado sob a imagem `williamnasci/oficina-tech-challenge`).
 - Trivy para scan da imagem Docker e do filesystem.
 - Validação Kubernetes com `kubectl kustomize k8s`.
+- Estágio de deploy seguro e condicional (`deploy`) no Kubernetes usando Kustomize e verificação de `KUBE_CONFIG` via shell no runner.
 - Métricas Prometheus em `/metrics` e dashboard Grafana inicial.
 
 ## Evidências de Validação

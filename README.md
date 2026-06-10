@@ -96,6 +96,78 @@ RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIV
 - Preço e descrição.
 - Listagem, atualização e exclusão lógica.
 
+## Documentação dos Endpoints da API (Fase 2)
+
+As rotas da API estão descritas de forma interativa no Swagger e implementam os requisitos obrigatórios da Fase 2:
+
+### 1. Abertura Completa de Ordem de Serviço (OS)
+- **Método/Rota**: `POST /service-orders/opening`
+- **Autenticação**: Requer Bearer Token (JWT)
+- **Descrição**: Abre uma nova OS vinculando cliente, veículo, serviços e peças. Retorna o ID único gerado para a OS.
+- **Payload de Exemplo**:
+  ```json
+  {
+    "customerDocument": "12345678909",
+    "vehiclePlate": "ABC1D23",
+    "services": [
+      {
+        "serviceCatalogId": "e3b5c409-81d7-48df-8caf-627c467b8711"
+      }
+    ],
+    "stockItems": [
+      {
+        "stockItemId": "a3b5c409-81d7-48df-8caf-627c467b8722",
+        "quantity": 2
+      }
+    ]
+  }
+  ```
+- **Resposta**: `201 Created` com `{ "id": "uuid-da-os" }`
+
+### 2. Consulta de Status da OS
+- **Método/Rota**: `GET /service-orders/:id/status`
+- **Descrição**: Informa a situação atual da OS especificada pelo ID.
+- **Resposta**: `200 OK`
+  ```json
+  {
+    "status": "RECEIVED"
+  }
+  ```
+  *(Status possíveis: RECEIVED, IN_DIAGNOSIS, WAITING_APPROVAL, IN_PROGRESS, FINISHED, DELIVERED)*
+
+### 3. Decisão Externa de Orçamento (Aprovação/Recusa)
+- **Método/Rota**: `POST /service-orders/:id/budget-decision`
+- **Descrição**: Endpoint para receber notificações externas de aprovação ou recusa do orçamento do cliente.
+- **Payload de Exemplo**:
+  ```json
+  {
+    "approved": true
+  }
+  ```
+- **Resposta**: `204 No Content`
+
+### 4. Listagem Operacional de Ordens de Serviço (Fila de Trabalho)
+- **Método/Rota**: `GET /service-orders/operational-queue`
+- **Autenticação**: Requer Bearer Token (JWT)
+- **Descrição**: Retorna a listagem de ordens de serviço ativas na oficina com ordenação estrita por prioridade de status (`IN_PROGRESS` > `WAITING_APPROVAL` > `IN_DIAGNOSIS` > `RECEIVED`) e as mais antigas primeiro. Exclui logicamente ordens finalizadas (`FINISHED`) e entregues (`DELIVERED`).
+- **Resposta**: `200 OK` com a lista ordenada de OS.
+
+### Documentação Swagger
+
+A especificação OpenAPI / Swagger pode ser acessada localmente após iniciar a aplicação:
+- **Swagger URL**: `http://localhost:3000/docs`
+
+> [!NOTE]
+> Para testar os endpoints protegidos por autenticação no Swagger, acesse a rota `POST /auth/login` com o usuário de demonstração acadêmica (`admin` / `admin`), copie o token JWT gerado e insira-o clicando no botão **Authorize** (formato: `Bearer <token>`).
+
+---
+
+## Vídeo de Demonstração
+
+[Adicionar link do vídeo demonstrativo]
+
+---
+
 ## Infraestrutura Implementada
 
 ### Docker
@@ -189,7 +261,7 @@ Durante a consolidação da Fase 2, foram utilizados os seguintes comandos de va
 ```bash
 npm run build
 npm test -- --runInBand
-docker build -t oficina-tech-challenge:test .
+docker build -t williamnasci/oficina-tech-challenge:test .
 docker compose config
 docker compose up --build
 kubectl kustomize k8s

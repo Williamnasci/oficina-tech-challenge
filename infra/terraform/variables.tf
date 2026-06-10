@@ -49,7 +49,7 @@ variable "api_service_name" {
 variable "api_image" {
   description = "Imagem Docker usada pela API."
   type        = string
-  default     = "oficina-tech-challenge:latest"
+  default     = "williamnasci/oficina-tech-challenge:latest"
 }
 
 variable "api_image_pull_policy" {

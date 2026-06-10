@@ -133,3 +133,32 @@ Registrar os GAPs identificados em relacao ao conteudo da Pos Tech FIAP - Softwa
 **Beneficio tecnico:** documentacao passa a refletir o estado atual do projeto.
 
 **Impacto para avaliacao FIAP:** facilita verificacao dos requisitos e evidencias da Fase 2.
+
+## GAP 9 - Pipeline de CI/CD sem estágio de deploy
+
+**GAP encontrado:** O pipeline no GitHub Actions não executava o deploy no cluster, apenas renderizava os manifestos com `kubectl kustomize`.
+
+**Evidencia:** O arquivo `.github/workflows/ci-cd.yml` executava apenas `kubectl kustomize k8s` no job `kubernetes-validate`, sem aplicar as alterações a um cluster Kubernetes ativo.
+
+**Correcao aplicada:** Implementado o job `deploy` que executa após os testes e publicação da imagem Docker, validando via shell no runner se o segredo `KUBE_CONFIG` está presente. Se sim, configura as credenciais do cluster, atualiza temporariamente o kustomization.yaml com a imagem construída, aplica os manifestos com `kubectl apply -k k8s` e acompanha o status de rollout. Se ausente, finaliza com sucesso de forma segura e informativa.
+
+**Arquivos alterados:** `.github/workflows/ci-cd.yml` e `docs/phase-2-plan.md`.
+
+**Beneficio tecnico:** Automatiza de ponta a ponta o pipeline de entrega contínua sem comprometer a estabilidade do fluxo de Pull Requests (PRs).
+
+**Impacto para avaliacao FIAP:** Atende diretamente ao requisito obrigatório de automatizar o provisionamento e o deploy no cluster Kubernetes pela pipeline de CI/CD.
+
+## GAP 10 - Inconsistência da Imagem de Container do Kubernetes
+
+**GAP encontrado:** Os manifestos Kubernetes utilizavam o nome de imagem local `oficina-tech-challenge:latest`, enquanto o pipeline de CI/CD publicava imagens de container diretamente no Docker Hub do usuário.
+
+**Evidencia:** `k8s/04-api-deployment.yaml` declarava `image: oficina-tech-challenge:latest`, gerando discrepância com o pipeline que envia a imagem para o Docker Hub, além de divergir dos arquivos do Terraform.
+
+**Correcao aplicada:** Atualizadas todas as referências estáticas da imagem do container da API e do initContainer `prisma-migrate` nos manifests e variáveis do Terraform para o padrão de repositório público do Docker Hub (`williamnasci/oficina-tech-challenge:latest`). Os arquivos de documentação foram atualizados com as novas instruções de build local.
+
+**Arquivos alterados:** `k8s/04-api-deployment.yaml`, `infra/terraform/variables.tf`, `infra/terraform/terraform.tfvars.example`, `docs/kubernetes.md` e `README.md`.
+
+**Beneficio tecnico:** Garante consistência arquitetural entre a imagem gerada no CI/CD, os manifests Kubernetes e os scripts IaC do Terraform.
+
+**Impacto para avaliacao FIAP:** Assegura que a imagem especificada no deploy é a mesma descrita na documentação e provida no Terraform, facilitando a auditoria da infraestrutura.
+

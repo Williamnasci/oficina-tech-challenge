@@ -14,7 +14,7 @@ auth_demo_password = "admin"
 
 api_deployment_name   = "oficina-api"
 api_service_name      = "oficina-api"
-api_image             = "oficina-tech-challenge:latest"
+api_image             = "williamnasci/oficina-tech-challenge:latest"
 api_image_pull_policy = "IfNotPresent"
 api_replicas          = 2
 api_service_type      = "LoadBalancer"

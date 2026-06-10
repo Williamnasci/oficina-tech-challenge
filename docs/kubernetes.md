@@ -17,7 +17,7 @@ Os manifestos da Fase 2 ficam em `/k8s` e descrevem um ambiente demonstravel com
 ## Build da Imagem
 
 ```bash
-docker build -t oficina-tech-challenge:latest .
+docker build -t williamnasci/oficina-tech-challenge:latest .
 ```
 
 Em clusters locais como Minikube ou Kind, a imagem precisa estar disponivel dentro do cluster.
@@ -25,13 +25,13 @@ Em clusters locais como Minikube ou Kind, a imagem precisa estar disponivel dent
 Minikube:
 
 ```bash
-minikube image load oficina-tech-challenge:latest
+minikube image load williamnasci/oficina-tech-challenge:latest
 ```
 
 Kind:
 
 ```bash
-kind load docker-image oficina-tech-challenge:latest
+kind load docker-image williamnasci/oficina-tech-challenge:latest
 ```
 
 ## Aplicar Manifestos
