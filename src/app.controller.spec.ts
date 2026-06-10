@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaService } from './shared/infrastructure/prisma/prisma.service';
+import { MetricsService } from './observability/metrics.service';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -15,6 +16,12 @@ describe('AppController', () => {
           provide: PrismaService,
           useValue: {
             $queryRaw: jest.fn().mockResolvedValue([{ '?column?': 1 }]),
+          },
+        },
+        {
+          provide: MetricsService,
+          useValue: {
+            setHealthcheckStatus: jest.fn(),
           },
         },
       ],

@@ -36,6 +36,8 @@ O sistema foi projetado para apoiar os principais processos de uma oficina mecâ
 | Terraform | Infraestrutura como Código |
 | GitHub Actions | Pipeline de CI/CD |
 | Trivy | Análise de vulnerabilidades |
+| Prometheus | Coleta de métricas da API |
+| Grafana | Dashboard inicial de observabilidade |
 
 ## Arquitetura do Sistema
 
@@ -111,8 +113,27 @@ RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIV
 - Healthcheck do PostgreSQL.
 - Healthcheck da API em `/health`.
 - Execução das migrations Prisma antes da inicialização da API.
+- Prometheus coletando métricas em `/metrics`.
+- Grafana provisionado com datasource Prometheus e dashboard inicial.
 
 Para acesso ao PostgreSQL pelo host local, o Compose expõe o banco em `localhost:15432`.
+Essa é a porta oficial do PostgreSQL para execução local fora dos containers.
+
+### Observabilidade Local
+
+O Docker Compose inclui uma solução mínima viável de observabilidade:
+
+- API NestJS expondo métricas Prometheus em `/metrics`.
+- Prometheus em `http://localhost:9090`.
+- Grafana em `http://localhost:3001` com login `admin` / `admin`.
+- Dashboard inicial `Oficina API` com requisições, latência e health checks.
+
+Arquivos principais:
+
+- `monitoring/prometheus/prometheus.yml`.
+- `monitoring/grafana/provisioning/datasources/prometheus.yml`.
+- `monitoring/grafana/provisioning/dashboards/oficina.yml`.
+- `monitoring/grafana/dashboards/oficina-api.json`.
 
 ### Kubernetes
 
@@ -169,6 +190,7 @@ Durante a consolidação da Fase 2, foram utilizados os seguintes comandos de va
 npm run build
 npm test -- --runInBand
 docker build -t oficina-tech-challenge:test .
+docker compose config
 docker compose up --build
 kubectl kustomize k8s
 terraform validate
@@ -189,6 +211,7 @@ Health check:
 
 ```bash
 curl http://localhost:3000/health
+curl http://localhost:3000/metrics
 ```
 
 Payload esperado:
@@ -234,6 +257,12 @@ DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
 ```
 
+## SonarQube
+
+O repositório mantém `sonar-project.properties` com fontes, testes, exclusões e leitura de cobertura Jest em `coverage/lcov.info`.
+
+O serviço `sonarqube` no `docker-compose.yml` permite análise local/manual em `http://localhost:9000`. No pipeline atual, a análise efetivamente automatizada de segurança é feita pelo Trivy, enquanto cobertura e qualidade funcional são validadas por Jest, build TypeScript e testes automatizados.
+
 ## Segurança
 
 - JWT obrigatório via `JWT_SECRET`.
@@ -246,7 +275,7 @@ DOCKERHUB_TOKEN
 
 ## Como Executar Localmente
 
-1. Configure o arquivo `.env`:
+Configure o arquivo `.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:supersecretpassword@localhost:15432/oficina_db?schema=public"
@@ -258,7 +287,27 @@ CORS_ORIGIN=http://localhost:3000
 PORT=3000
 ```
 
-2. Suba o ambiente:
+### Fluxo Docker Completo
+
+Use este fluxo quando quiser subir API, banco, SonarQube, Prometheus e Grafana em containers:
+
+```bash
+docker compose up -d --build
+```
+
+Serviços principais:
+
+- API: `http://localhost:3000`
+- Health check: `http://localhost:3000/health`
+- Métricas Prometheus: `http://localhost:3000/metrics`
+- Swagger: `http://localhost:3000/docs`
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3001`
+- SonarQube: `http://localhost:9000`
+
+### Fluxo Desenvolvimento Local
+
+Use este fluxo quando quiser rodar a API pelo NestJS local e apenas o banco em container:
 
 ```bash
 npm install
@@ -266,10 +315,13 @@ docker compose up -d db
 npm run start:dev
 ```
 
-3. Acesse:
+Neste modo, evite subir o serviço `api` do Compose ao mesmo tempo para não disputar a porta `3000`.
+
+Acesse:
 
 - API: `http://localhost:3000`
 - Health check: `http://localhost:3000/health`
+- Métricas Prometheus: `http://localhost:3000/metrics`
 - Swagger: `http://localhost:3000/docs`
 
 ## Autenticação
@@ -297,8 +349,9 @@ O projeto possui testes automatizados unitários e de integração para os fluxo
 
 Última validação local registrada:
 
-- 59 suítes de teste.
-- 206 testes automatizados.
+- 62 suítes de teste.
+- 211 testes automatizados.
+- Cobertura global: 94,35% statements e 93,82% lines.
 
 Comandos:
 
@@ -318,12 +371,22 @@ npm run test:cov
 | Linguagem Ubíqua | `docs/ubiquitous-language.md` |
 | Kubernetes | `docs/kubernetes.md` |
 | Terraform | `infra/terraform/README.md` |
+| Observabilidade | `docs/observability.md` |
 | Histórico da Fase 2 | `docs/phase-2-plan.md` |
 | Segurança | `docs/security-report.md` |
+| GAP Analysis Fase 2 | `docs/fase2-gap-analysis.md` |
 
 ## Observabilidade
 
-Prometheus, Grafana, Loki, Jaeger e OpenTelemetry não fazem parte da implementação atual consolidada. São evoluções possíveis para uma próxima etapa.
+O projeto possui observabilidade mínima viável:
+
+- `/health` para saúde da aplicação e banco.
+- `/metrics` no formato Prometheus.
+- Métricas `requests_total`, `request_duration_seconds` e `healthcheck_status`.
+- Prometheus e Grafana no Docker Compose.
+- Dashboard inicial versionado para requisições, latência e health checks.
+
+OpenTelemetry, Loki e Jaeger foram avaliados como evolução futura para evitar complexidade excessiva no escopo acadêmico atual. A proposta arquitetural está descrita em `docs/observability.md`.
 
 ## Autoria
 

@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { MetricsService } from './observability/metrics.service';
 import { PrismaService } from './shared/infrastructure/prisma/prisma.service';
 
 export type HealthStatus = {
@@ -10,7 +11,10 @@ export type HealthStatus = {
 
 @Injectable()
 export class AppService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly metricsService: MetricsService,
+  ) {}
 
   getHello(): string {
     return 'Oficina API is running.';
@@ -25,11 +29,16 @@ export class AppService {
       database = 'error';
     }
 
-    return {
+    const health: HealthStatus = {
       status: database === 'ok' ? 'ok' : 'error',
       app: 'ok',
       database,
       timestamp: new Date().toISOString(),
     };
+
+    this.metricsService.setHealthcheckStatus('app', true);
+    this.metricsService.setHealthcheckStatus('database', database === 'ok');
+
+    return health;
   }
 }

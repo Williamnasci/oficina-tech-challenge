@@ -7,6 +7,7 @@ import { PrismaModule } from './shared/infrastructure/prisma/prisma.module';
 import { StockItemsModule } from './modules/stock-items/stock-items.module';
 import { ServiceCatalogModule } from './modules/service-catalog/service-catalog.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { ObservabilityModule } from './observability/observability.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -20,8 +21,9 @@ import { AppService } from './app.service';
     ServiceOrdersModule,
     StockItemsModule,
     ServiceCatalogModule,
+    ObservabilityModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

@@ -16,6 +16,8 @@ A Fase 2 foi concluída com os seguintes pilares:
 - Kubernetes com API, PostgreSQL, ConfigMap, Secret, Service, StatefulSet, PVC e HPA.
 - Terraform em `infra/terraform` provisionando recursos equivalentes em um cluster Kubernetes local.
 - GitHub Actions com build, testes, Docker build/push, Trivy e validação dos manifests Kubernetes.
+- Dashboard Grafana validado com métricas reais da API.
+- Prometheus coletando métricas através do endpoint /metrics.
 
 ## Entregas Concluídas
 
@@ -33,6 +35,7 @@ A Fase 2 foi concluída com os seguintes pilares:
 - `docker-compose.yml` com API e PostgreSQL.
 - PostgreSQL com volume persistente.
 - Healthchecks configurados para API e banco.
+- Prometheus e Grafana configurados para observabilidade local.
 
 ### Kubernetes
 
@@ -62,6 +65,7 @@ A Fase 2 foi concluída com os seguintes pilares:
 - Docker build e push para Docker Hub somente na branch `main` e fora de Pull Requests.
 - Trivy para scan da imagem Docker e do filesystem.
 - Validação Kubernetes com `kubectl kustomize k8s`.
+- Métricas Prometheus em `/metrics` e dashboard Grafana inicial.
 
 ## Evidências de Validação
 
@@ -79,6 +83,7 @@ Durante a consolidação da Fase 2, foram utilizados os seguintes comandos e ver
 - `kubectl get pvc`.
 - `kubectl get hpa`.
 - `/health` com HTTP 200 e `database: ok`.
+- `/metrics` expondo métricas Prometheus da API.
 
 Essas validações demonstram que a aplicação, a infraestrutura containerizada, os manifests Kubernetes, a infraestrutura Terraform e a pipeline de CI/CD foram exercitados de forma integrada.
 
@@ -86,8 +91,8 @@ Essas validações demonstram que a aplicação, a infraestrutura containerizada
 
 - Os manifests Kubernetes e os arquivos de exemplo do Terraform utilizam valores ilustrativos para fins acadêmicos e de demonstração. Em ambientes reais, recomenda-se o uso de mecanismos seguros de gerenciamento de segredos, evitando o versionamento de credenciais sensíveis.
 - O HPA foi provisionado, validado e associado ao Deployment da API. Em clusters locais sem `metrics-server`, os targets de CPU e memória podem aparecer como `<unknown>`. Isso não invalida a criação do recurso nem sua associação ao Deployment; apenas indica ausência da API de métricas no cluster.
-- A observabilidade completa com Prometheus, Grafana, Loki, Jaeger ou OpenTelemetry permanece como evolução opcional para uma etapa futura.
+- Prometheus e Grafana foram implementados como observabilidade mínima viável. OpenTelemetry, Loki e Jaeger permanecem como evolução opcional para uma etapa futura.
 
 ## Conclusão
 
-A Fase 2 está concluída no escopo de Docker, Docker Compose, Kubernetes, Terraform, CI/CD, segurança automatizada com Trivy e validação da aplicação em ambiente containerizado.
+A Fase 2 está concluída no escopo de Docker, Docker Compose, Kubernetes, Terraform, CI/CD, segurança automatizada com Trivy, observabilidade mínima com Prometheus/Grafana e validação da aplicação em ambiente containerizado.
