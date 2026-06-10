@@ -107,16 +107,28 @@ As rotas da API estão descritas de forma interativa no Swagger e implementam os
 - **Payload de Exemplo**:
   ```json
   {
-    "customerDocument": "12345678909",
-    "vehiclePlate": "ABC1D23",
+    "customer": {
+      "name": "John Doe",
+      "documentType": "CPF",
+      "document": "52998224725",
+      "phone": "11999999999",
+      "email": "john@example.com"
+    },
+    "vehicle": {
+      "licensePlate": "ABC1D23",
+      "brand": "Toyota",
+      "model": "Corolla",
+      "year": 2022
+    },
     "services": [
       {
-        "serviceCatalogId": "e3b5c409-81d7-48df-8caf-627c467b8711"
+        "serviceId": "88ef38db-e956-4e26-807e-e709b87c25af",
+        "quantity": 1
       }
     ],
     "stockItems": [
       {
-        "stockItemId": "a3b5c409-81d7-48df-8caf-627c467b8722",
+        "stockItemId": "90a44f7f-6798-44f8-8c23-d6d20dcd4ed0",
         "quantity": 2
       }
     ]
@@ -321,13 +333,20 @@ Jobs:
 | `docker` | Gera a imagem Docker e publica no Docker Hub apenas na `main` e fora de Pull Requests |
 | `security` | Executa scan Trivy da imagem e do filesystem |
 | `kubernetes-validate` | Renderiza os manifests com `kubectl kustomize k8s` |
+| `deploy` | Executa deploy condicional no Kubernetes na branch `main` quando `KUBE_CONFIG` estiver configurado |
 
 Secrets necessários no GitHub:
 
 ```text
 DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
+KUBE_CONFIG
 ```
+
+- `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN` são usados para publicar imagem no Docker Hub;
+- `KUBE_CONFIG` é usado apenas para deploy real no Kubernetes;
+- se `KUBE_CONFIG` não estiver configurado, o deploy é ignorado com sucesso pela pipeline.
+
 
 ## SonarQube
 
