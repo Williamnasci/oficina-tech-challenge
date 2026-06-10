@@ -15,6 +15,7 @@ O sistema é um **backend monolítico** construído com **NestJS**, aplicando co
 | Testes | Jest + Supertest | Framework de testes padrão do ecossistema Node.js |
 | Container | Docker + Docker Compose | Portabilidade e reprodutibilidade do ambiente |
 | Documentação | Swagger (OpenAPI) | Autodocumentação da API via decorators |
+| Observabilidade | Prometheus + Grafana | Métricas HTTP, health check e dashboard inicial |
 
 ## Decisões Arquiteturais
 
@@ -84,6 +85,18 @@ modules/<module>/
 
 **Justificativa:** O requisito de monitoramento operacional pertence ao contexto de Ordem de Serviço. A métrica utiliza ordens com `startedAt` e `finishedAt`, mantendo a leitura no repositório e a formatação no caso de uso `GetAverageExecutionTimeUseCase`.
 
+### 9. Observabilidade Técnica com Prometheus
+
+**Decisão:** Expor métricas técnicas da API em `/metrics` usando `prom-client` e coletá-las com Prometheus/Grafana no Docker Compose.
+
+**Justificativa:** A observabilidade técnica é uma preocupação transversal e não pertence ao domínio da oficina. Por isso, foi isolada no módulo `ObservabilityModule`, com interceptor HTTP global para contar requisições e medir latência sem alterar regras de negócio.
+
+Métricas expostas:
+
+- `requests_total`.
+- `request_duration_seconds`.
+- `healthcheck_status`.
+
 ## Diagrama de Camadas
 
 ```
@@ -117,4 +130,4 @@ modules/<module>/
 
 **Meta:** ≥ 80% em statements, lines e functions.
 
-**Resultado atual:** a última validação local executou 59 suítes e 206 testes com sucesso. A suíte inclui testes unitários e de integração, incluindo fluxo transacional real de orçamento e baixa de estoque.
+**Resultado atual:** a última validação local executou 62 suítes e 211 testes com sucesso, com cobertura global de 94,35% statements e 93,82% lines. A suíte inclui testes unitários e de integração, incluindo fluxo transacional real de orçamento e baixa de estoque.

@@ -17,6 +17,7 @@ O Terraform provisiona os recursos necessários para executar a aplicação em u
 - **API:** cria o Deployment da aplicação NestJS, incluindo init container para execução das migrations Prisma antes da inicialização da API.
 - **Service da API:** expõe a aplicação dentro do cluster Kubernetes.
 - **HPA:** configura autoscaling horizontal da API com base em CPU e memória.
+- **Anotações Prometheus:** marca os pods da API para coleta de métricas em `/metrics`.
 
 ## Estrutura da Pasta
 
@@ -43,6 +44,7 @@ infra/
 - `kubernetes_deployment.api`: execução da API NestJS com init container para migrations.
 - `kubernetes_service.api`: exposição da API no cluster.
 - `kubernetes_horizontal_pod_autoscaler_v2.api`: autoscaling horizontal da API por CPU e memória.
+- Anotações `prometheus.io/*` no template do Deployment da API para integração com Prometheus no cluster.
 
 ## Pré-requisitos
 
@@ -175,4 +177,4 @@ Resultado esperado:
 - Segredos reais não devem ser versionados.
 - Arquivos de estado do Terraform, como `.tfstate`, podem conter valores sensíveis e devem ser protegidos.
 - Neste projeto, o estado local é utilizado apenas para fins acadêmicos e demonstração da Fase 2.
-- Observabilidade com Prometheus, Grafana, Loki, Jaeger ou OpenTelemetry permanece como evolução futura.
+- Prometheus e Grafana estão implementados no Docker Compose para observabilidade local. No Kubernetes/Terraform, os pods da API já incluem anotações de scrape em `/metrics`; a instalação do Prometheus no cluster permanece como responsabilidade do ambiente.

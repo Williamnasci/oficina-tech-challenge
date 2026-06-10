@@ -12,6 +12,7 @@ Os manifestos da Fase 2 ficam em `/k8s` e descrevem um ambiente demonstravel com
 - Init container para executar `npx prisma migrate deploy`.
 - Service `LoadBalancer` para expor a API.
 - HPA escalando a API por CPU e memoria.
+- Anotacoes Prometheus no pod da API para scrape de `/metrics`.
 
 ## Build da Imagem
 
@@ -66,6 +67,7 @@ Depois acesse:
 - API: `http://localhost:3000`
 - Health check: `http://localhost:3000/health`
 - Swagger: `http://localhost:3000/docs`
+- Metricas Prometheus: `http://localhost:3000/metrics`
 
 ## Observacoes
 
