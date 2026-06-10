@@ -1,41 +1,74 @@
-## 🔒 Análise de Vulnerabilidades
+# Análise de Vulnerabilidades
 
-### Ferramenta utilizada
+## Objetivo
 
-Trivy Scanner / npm audit
+Este documento registra a análise de segurança realizada na Fase 2 do Tech Challenge, com foco em dependências, imagem Docker, pipeline de CI/CD e práticas de hardening aplicadas ao backend da Oficina Mecânica.
 
-### Data da análise
+## Ferramentas Utilizadas
 
-08/04/2026
+- Trivy Scanner.
+- npm audit.
+- GitHub Actions.
 
-### Resultado Geral
+## Contexto Atual
 
-* CRITICAL: 0
-* HIGH: 2
-* MEDIUM: 3
-* LOW: 0
-* Total: 5
+A aplicação utiliza Node.js 22 e o Dockerfile atual é baseado em:
 
-### Principais vulnerabilidades identificadas
+```dockerfile
+FROM node:22-alpine
+```
 
-**1. Dependência:** `lodash`
-* **Versão instalada:** `4.17.23`
-* **Severidade:** HIGH/MEDIUM
-* **Solução sugerida:** Atualizar para a versão corrigida indicada pelo scanner quando disponível no ecossistema de dependências.
+O build da imagem Docker e os scans Trivy são executados no workflow `.github/workflows/ci-cd.yml`.
 
-**2. Dependência:** `path-to-regexp`
-* **Versão instalada:** `8.3.0`
-* **Severidade:** HIGH/MEDIUM
-* **Solução sugerida:** Atualizar para `8.4.0` ou superior.
+## Resultado Geral
 
-**3. Dependência:** `@hono/node-server`
-* **Versão instalada:** `1.19.11`
-* **Severidade:** MEDIUM
-* **Solução sugerida:** Atualizar para `1.19.13` ou superior.
+Os scans registram vulnerabilidades transitivas relacionadas a dependências indiretas do ecossistema Node.js. Esses achados devem ser reconhecidos e acompanhados, pois podem representar risco dependendo do contexto de exposição da aplicação.
 
-### Ações Recomendadas
+Como os números de severidade podem mudar conforme atualização de base do scanner, lockfile, imagem base e dependências transitivas, este relatório não fixa uma contagem como evidência definitiva. A correção deve ser avaliada de forma controlada para evitar atualizações incompatíveis com a stack atual.
 
-* **Atualização de Dependências:** Recomenda-se executar `npm audit fix` e nova varredura Trivy antes de produção.
-* **Mitigação:** O Dockerfile expõe apenas as portas necessárias e usa imagem oficial e leve (`node:20-alpine`). 
-* **Remoção de Libs Não Utilizadas:** Nenhuma biblioteca supérflua no pacote final do backend. Dependências de tipagem estão restritas localmente como `devDependencies`.
-* **Observação:** As vulnerabilidades identificadas são transitivas, provenientes de dependências do ecossistema Node.js; não foram identificadas vulnerabilidades diretamente na lógica de domínio da aplicação.
+## Mitigações Implementadas
+
+- Dockerfile baseado na imagem oficial `node:22-alpine`.
+- Execução da aplicação como usuário não root (`USER node`).
+- Exposição apenas da porta necessária da API.
+- JWT obrigatório via variável de ambiente.
+- Helmet aplicado na aplicação.
+- Validação de entrada com `ValidationPipe`.
+- Separação arquitetural entre domínio, aplicação, interfaces e infraestrutura.
+- Scan Trivy automatizado no GitHub Actions para imagem Docker e filesystem.
+
+## GitHub Actions
+
+O workflow de CI/CD executa:
+
+- build e testes;
+- Docker build;
+- Docker push apenas na branch `main` e fora de Pull Requests;
+- scan Trivy da imagem Docker;
+- scan Trivy do filesystem;
+- validação dos manifests Kubernetes.
+
+O Trivy está configurado com `exit-code: '0'`, registrando os achados no log da pipeline sem bloquear a entrega acadêmica por vulnerabilidades transitivas conhecidas.
+
+## Recomendações para Produção
+
+Antes de uso produtivo, recomenda-se executar nova auditoria de dependências:
+
+```bash
+npm audit
+```
+
+Também é recomendado reexecutar os scans locais:
+
+```bash
+npm run scan:vuln
+npm run scan:image
+```
+
+Em um ambiente produtivo, os achados devem ser tratados conforme política de risco, criticidade, exposição da aplicação e disponibilidade de versões compatíveis. Atualizações de dependências devem ser feitas de forma controlada, com validação de build, testes automatizados, Docker build e pipeline após qualquer alteração.
+
+## Conclusão
+
+A postura de segurança está adequada ao contexto acadêmico do Tech Challenge. Existem vulnerabilidades transitivas conhecidas, mas a aplicação possui controles de hardening, isolamento arquitetural e scan automatizado no pipeline.
+
+Para produção, a recomendação é revalidar as dependências, atualizar pacotes compatíveis e tratar vulnerabilidades de acordo com uma política formal de segurança.

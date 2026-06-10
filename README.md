@@ -1,281 +1,252 @@
 # Oficina Tech Challenge
 
-![Status](https://img.shields.io/badge/status-MVP-blue)
-![Node](https://img.shields.io/badge/node-%3E%3D18-green)
-![NestJS](https://img.shields.io/badge/NestJS-10-red)
-![Coverage](https://img.shields.io/badge/coverage-89%25-brightgreen)
-
 ## Descrição do Projeto
 
-Sistema back-end para gestão de oficinas mecânicas, desenvolvido como entrega do **Tech Challenge Fase 1** da pós-graduação em Arquitetura de Software da FIAP.
+Sistema back-end para gestão de oficinas mecânicas, desenvolvido como entrega do **Tech Challenge Fase 2** da Pós-Tech FIAP em Arquitetura de Software.
 
-A aplicação centraliza o fluxo operacional de uma oficina, contemplando cadastro de clientes, veículos, ordens de serviço, catálogo de serviços, controle de estoque de peças e insumos, além de orçamentos dinâmicos com máquina de estado completa.
-
----
+A aplicação centraliza o fluxo operacional de uma oficina, contemplando cadastro de clientes, veículos, ordens de serviço, catálogo de serviços, controle de estoque de peças e insumos, orçamento e acompanhamento do ciclo de vida da ordem de serviço.
 
 ## Objetivo
 
-O sistema foi arquitetado para atender as seguintes necessidades de negócio:
+O sistema foi projetado para apoiar os principais processos de uma oficina mecânica:
 
-- Cadastro e gestão unificada de clientes (CPF/CNPJ) e veículos
-- Criação e acompanhamento de ordens de serviço com máquina de estado
-- Registro de diagnóstico técnico
-- Inclusão e cálculo automático de serviços prestados
-- Precificação e consumo real de peças e insumos, com baixa de estoque
-- Composição detalhada de orçamento com fluxo de aprovação
-
----
-
-## Funcionalidades
-
-### Customers
-
-- Cadastro com validação algorítmica de CPF e CNPJ
-- Consulta por ID ou por documento (CPF/CNPJ)
-- Listagem completa, atualização parcial e exclusão lógica (soft delete)
-
-### Vehicles
-
-- Cadastro com validação de placa (formato antigo e Mercosul)
-- Vínculo obrigatório com cliente existente
-- Listagem, atualização parcial e exclusão lógica
-
-### Service Orders
-
-- Criação vinculada a cliente e veículo ativos
-- Criação com identificação do cliente por `customerId` ou CPF/CNPJ (`customerDocument`)
-- Registro de diagnóstico técnico
-- Adição de serviços do catálogo e peças do estoque
-- Cálculo automático de orçamento
-- Monitoramento do tempo médio de execução das ordens finalizadas
-- Fluxo completo com máquina de estado:
-
-```
-RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
-```
-
-- Aprovação de orçamento e consulta por CPF/CNPJ do cliente
-
-### Stock Items
-
-- Cadastro de peças e insumos com SKU único
-- Controle de quantidade em estoque com baixa automática ao vincular a OS
-- Listagem, atualização e exclusão lógica
-
-### Service Catalog
-
-- Cadastro de serviços com nome, descrição e preço
-- Listagem, atualização e exclusão lógica
-
----
+- Cadastro e gestão de clientes com CPF/CNPJ.
+- Cadastro e gestão de veículos.
+- Criação e acompanhamento de ordens de serviço.
+- Registro de diagnóstico técnico.
+- Inclusão de serviços e peças em ordens de serviço.
+- Controle de estoque com baixa automática.
+- Cálculo de orçamento.
+- Fluxo de aprovação e evolução de status.
+- Métricas operacionais de tempo médio de execução.
 
 ## Tecnologias Utilizadas
 
 | Tecnologia | Função |
 |------------|--------|
-| **Node.js + TypeScript** | Runtime e tipagem estática |
-| **NestJS** | Framework principal com IoC nativo |
-| **Prisma ORM** | Camada de persistência type-safe |
-| **PostgreSQL** | Banco de dados relacional |
-| **Swagger (OpenAPI)** | Documentação automática da API |
-| **Helmet** | Hardening de headers HTTP |
-| **class-validator / class-transformer** | Validação de entrada via DTOs |
-| **Jest + Supertest** | Testes unitários e de integração |
-| **Docker + Docker Compose** | Containerização e orquestração |
-| **Trivy** | Análise estática de vulnerabilidades |
-
----
-
-## Justificativa Tecnológica
-
-### Banco de Dados - PostgreSQL
-
-Adoção justificada por sua robustez transacional, forte suporte à integridade referencial nativa e adequação a um domínio com entidades altamente interligadas (ordens, clientes, veículos e peças).
-
-### ORM - Prisma
-
-Escolha baseada na maturidade da geração automática de tipagens (type safety), na clareza esquemática e na produtividade das migrações versionadas, reduzindo o impedance mismatch entre domínio e persistência.
-
-### Framework - NestJS
-
-Estrutura opinativa e modular, com injeção de dependências nativa, impulsionando práticas de separação em camadas e DDD sem atrito arquitetural, favorecendo a integridade e a testabilidade da API.
-
----
+| Node.js 22 + TypeScript | Runtime e tipagem estática |
+| NestJS | Framework principal da API |
+| Prisma ORM | Persistência type-safe |
+| PostgreSQL | Banco de dados relacional |
+| Swagger | Documentação da API |
+| Jest + Supertest | Testes automatizados |
+| Docker | Containerização da aplicação |
+| Docker Compose | Orquestração local da API e do banco |
+| Kubernetes | Orquestração local dos serviços |
+| Terraform | Infraestrutura como Código |
+| GitHub Actions | Pipeline de CI/CD |
+| Trivy | Análise de vulnerabilidades |
 
 ## Arquitetura do Sistema
 
-O projeto adota uma estrutura em camadas baseada em **Domain-Driven Design (DDD)** para maximizar a resiliência a mudanças e a proteção do núcleo de negócios:
+O projeto segue uma organização modular inspirada em DDD, Clean Architecture e arquitetura em camadas:
 
-- **Domain:** Coração da aplicação; entidades, value objects, enums, regras de negócio e contratos de repositório. Não depende de NestJS, Prisma, Swagger, DTOs de aplicação ou adapters externos.
-- **Application:** Orquestração; casos de uso, DTOs de entrada/saída e mappers. Nesta implementação NestJS, os casos de uso usam decorators de injeção de dependência como decisão pragmática, sem depender de Prisma ou repositórios concretos.
-- **Interfaces/HTTP:** Controllers REST com decorators Swagger e guards de autenticação.
-- **Infrastructure:** Implementações concretas dos repositórios (Prisma) e filtros de exceção.
-- **Shared:** Exceptions de domínio, filtros globais (Prisma/Domain) e serviço singleton do banco.
+- **Domain:** entidades, value objects, enums, regras de negócio e contratos de repositório.
+- **Application:** casos de uso, DTOs e mappers.
+- **Infrastructure:** implementações Prisma dos repositórios e integrações técnicas.
+- **Interfaces/HTTP:** controllers REST, Swagger, guards e DTOs de entrada.
+- **Shared:** infraestrutura compartilhada, PrismaService e filtros globais.
 
-Essa abordagem garante **baixo acoplamento** entre as camadas, **alta coesão** dentro de cada módulo e **facilidade de manutenção**. As regras centrais ficam no domínio e nos casos de uso; detalhes como HTTP, Swagger, Prisma e persistência transacional ficam nas camadas externas.
+As regras centrais ficam no domínio e nos casos de uso. Detalhes como HTTP, Swagger, Prisma, Docker, Kubernetes e Terraform ficam nas camadas externas ou na infraestrutura do projeto.
 
----
+## Funcionalidades
 
-## Estrutura do Projeto
+### Customers
+
+- Cadastro com validação de CPF/CNPJ.
+- Consulta por ID ou documento.
+- Listagem, atualização e exclusão lógica.
+
+### Vehicles
+
+- Cadastro com validação de placa.
+- Vínculo com cliente.
+- Listagem, atualização e exclusão lógica.
+
+### Service Orders
+
+- Criação vinculada a cliente e veículo ativos.
+- Abertura completa com cliente, veículo, serviços e peças.
+- Registro de diagnóstico.
+- Adição de serviços e itens de estoque.
+- Cálculo automático de orçamento.
+- Aprovação ou recusa de orçamento.
+- Consulta de status.
+- Listagem operacional.
+- Métrica de tempo médio de execução.
+
+Fluxo de status:
 
 ```text
-src/
-├── app.module.ts
-├── main.ts
-├── modules/
-│   ├── auth/                  # Autenticação JWT
-│   ├── customers/             # Gestão de clientes (CPF/CNPJ)
-│   ├── vehicles/              # Gestão de veículos
-│   ├── service-orders/        # Ordens de serviço (core)
-│   ├── stock-items/           # Peças e insumos (estoque)
-│   └── service-catalog/       # Catálogo de serviços
-├── shared/
-│   └── infrastructure/
-│       ├── prisma/            # PrismaService singleton
-│       └── filters/           # Exception filters globais
-├── prisma/                    # Schema e migrações
-├── docs/                      # Documentação DDD
-└── test/                      # Testes unitários e de integração
+RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
 ```
 
----
+### Stock Items
 
-## Modelagem do Banco de Dados
+- Cadastro de peças e insumos.
+- SKU único.
+- Baixa automática de estoque.
+- Listagem, atualização e exclusão lógica.
 
-A aplicação modela de forma relacional estrita: `Customer`, `Vehicle`, `ServiceOrder`, `ServiceCatalog` e `StockItem`, integrados pelas tabelas associativas de composição de ordens.
+### Service Catalog
 
-**Destaques Estruturais:**
+- Cadastro de serviços.
+- Preço e descrição.
+- Listagem, atualização e exclusão lógica.
 
-- Integridade referencial entre cliente, veículo e suas ordens de serviço.
-- Composição da ordem com `ServiceOrderService` (mão de obra baseada no catálogo).
-- Cálculo isolado de consumo via `ServiceOrderStockItem` (peças e insumos com baixa real de inventário). A baixa de estoque e a atualização dos itens da OS são executadas no adapter Prisma dentro de transação para preservar atomicidade.
-- Soft delete via campo `isActive` em Customer, Vehicle, ServiceCatalog e StockItem.
+## Infraestrutura Implementada
 
----
+### Docker
 
-## Segurança
+- `Dockerfile` multi-stage com Node.js 22 Alpine.
+- Geração do Prisma Client durante o build.
+- Runtime com usuário não root.
+- API exposta na porta `3000`.
 
-O projeto incorpora práticas de segurança em múltiplas camadas, combinando hardening da aplicação com análise estática de vulnerabilidades.
+### Docker Compose
 
-### Medidas de Hardening Implementadas
+- API NestJS.
+- PostgreSQL 15 em container.
+- Volume persistente para o banco.
+- Healthcheck do PostgreSQL.
+- Healthcheck da API em `/health`.
+- Execução das migrations Prisma antes da inicialização da API.
 
-- **JWT sem fallback hardcoded:** O `JWT_SECRET` é obrigatoriamente configurado por meio de variável de ambiente (`ConfigService.getOrThrow`). A aplicação não inicializa sem ele.
-- **Helmet:** Headers HTTP de segurança aplicados globalmente.
-- **CORS:** Configuração restritiva via variável de ambiente `CORS_ORIGIN`.
-- **Docker não root:** o Dockerfile utiliza a diretiva `USER node` para execução não privilegiada.
-- **Validação de entrada:** Todas as rotas utilizam `ValidationPipe` com `whitelist` e `forbidNonWhitelisted`.
+Para acesso ao PostgreSQL pelo host local, o Compose expõe o banco em `localhost:15432`.
 
-### Arquitetura DDD e Segurança Orgânica
+### Kubernetes
 
-A modelagem baseada em DDD contribui diretamente para a postura de segurança do sistema:
+Os manifests ficam em `k8s/` e incluem:
 
-- **Isolamento de dependências:** o núcleo de negócio (Domain) não depende de frameworks externos, DTOs de aplicação ou ORM, bloqueando infiltrações por dependências transitivas (supply chain).
-- **Redução da superfície de ataque:** adapters HTTP e parsers de rotas ficam isolados e restritos logicamente.
-- **Facilidade de patching:** casos de uso dependem de contratos abstratos de repositório, mitigando quebras quando bibliotecas externas ou adapters concretos são atualizados.
+- Namespace.
+- ConfigMap.
+- Secret.
+- PostgreSQL Service.
+- PostgreSQL StatefulSet.
+- PVC via `volumeClaimTemplates`.
+- API Deployment.
+- API Service.
+- Readiness probe em `/health`.
+- Liveness probe em `/health`.
+- HPA por CPU e memória.
 
-### Resultado da Análise de Vulnerabilidades (Trivy)
-
-Varredura executada com [Trivy](https://trivy.dev/) sobre o sistema de arquivos do projeto:
-
-| Severidade | Quantidade |
-|:-----------|:-----------|
-| **CRITICAL** | 0 |
-| **HIGH** | 2 |
-| **MEDIUM** | 3 |
-| **LOW** | 0 |
-| **Total** | 5 |
-
-**Observação importante:** todas as vulnerabilidades identificadas são provenientes de **dependências transitivas** - bibliotecas indiretas herdadas por pacotes do ecossistema Node.js. Nenhuma vulnerabilidade se encontra no código-fonte da aplicação.
-
-**Exemplos de dependências afetadas:**
-
-- `lodash` - risco de poluição de protótipo (prototype pollution)
-- `path-to-regexp` - risco de ReDoS (Regular Expression Denial of Service) no Express
-- `@hono/node-server` - risco de bypass em middleware de arquivos estáticos em versões afetadas
-
-**Estratégia adotada:** no contexto acadêmico do Tech Challenge, priorizou-se a solidez arquitetural (DDD, separação de camadas, testes) como principal mecanismo de defesa. As vulnerabilidades transitivas não afetam a lógica de negócio devido ao isolamento proporcionado pela arquitetura.
-
-**Mitigação recomendada para produção:**
+Validação dos manifests:
 
 ```bash
-# Correção automática de vulnerabilidades conhecidas
-npm audit fix
-
-# Auditoria detalhada
-npm audit
+kubectl kustomize k8s
 ```
 
-### Executando o Scanner Local (Trivy)
+### Terraform
 
-O scanner requer Docker Desktop em execução:
+A implementação Terraform fica em `infra/terraform/` e provisiona recursos equivalentes em um cluster Kubernetes local:
+
+- Namespace `oficina-terraform`.
+- ConfigMap.
+- Secret.
+- PostgreSQL Service.
+- PostgreSQL StatefulSet.
+- PersistentVolumeClaim.
+- API Deployment.
+- API Service.
+- HPA via `kubernetes_horizontal_pod_autoscaler_v2`.
+
+Comandos principais:
 
 ```bash
-# Scan de dependências e configurações
-npm run scan:vuln
-
-# Gerar relatório exportado em arquivo
-npm run scan:vuln:report
-
-# Scan da imagem Docker
-npm run scan:image
+cd infra/terraform
+terraform init
+terraform fmt -check
+terraform validate
+terraform plan
+terraform apply
 ```
 
-O relatório completo está disponível em `trivy-report.txt`.
+## Evidências de Validação
 
----
+Durante a consolidação da Fase 2, foram utilizados os seguintes comandos de validação:
+
+```bash
+npm run build
+npm test -- --runInBand
+docker build -t oficina-tech-challenge:test .
+docker compose up --build
+kubectl kustomize k8s
+terraform validate
+terraform plan
+terraform apply
+kubectl get pods -n oficina-terraform
+kubectl get pvc -n oficina-terraform
+kubectl get hpa -n oficina-terraform
+```
+
+A API também foi validada por port-forward:
+
+```bash
+kubectl port-forward svc/oficina-api 3000:80 -n oficina-terraform
+```
+
+Health check:
+
+```bash
+curl http://localhost:3000/health
+```
+
+Payload esperado:
+
+```json
+{
+  "status": "ok",
+  "app": "ok",
+  "database": "ok",
+  "timestamp": "..."
+}
+```
+
+## HPA e Metrics Server
+
+O HPA está criado e associado ao Deployment da API.
+
+Em clusters locais sem `metrics-server`, os targets de CPU e memória podem aparecer como `<unknown>`. Isso não invalida o provisionamento do HPA; apenas indica que o cluster não está expondo a API de métricas necessária para o cálculo dinâmico.
 
 ## CI/CD - GitHub Actions
 
-A Fase 2 inclui uma pipeline de CI/CD em `.github/workflows/ci-cd.yml` para validar qualidade, imagem Docker, seguranca e manifests Kubernetes.
+O workflow fica em `.github/workflows/ci-cd.yml`.
 
-### Quando executa
+Eventos:
 
-- `push` na branch `main`
-- `pull_request` para a branch `main`
-- execucao manual por `workflow_dispatch`
+- `push` na branch `main`.
+- `pull_request` para `main`.
+- execução manual por `workflow_dispatch`.
 
-### Jobs da pipeline
+Jobs:
 
-| Job | Objetivo | Comandos principais |
-|-----|----------|---------------------|
-| `quality` | Instalar dependencias, buildar a aplicacao e executar testes | `npm ci`, `npm run build`, `npm test -- --runInBand` |
-| `docker` | Buildar a imagem Docker e publicar no Docker Hub quando houver secrets disponiveis | `docker build`, `docker tag`, `docker push` |
-| `security` | Executar scan Trivy da imagem Docker e do filesystem | `aquasecurity/trivy-action` |
-| `kubernetes-validate` | Validar renderizacao dos manifests Kubernetes sem aplicar deploy | `kubectl kustomize k8s` |
+| Job | Objetivo |
+|-----|----------|
+| `quality` | Instala dependências, gera o Prisma Client, aplica migrations, executa build e testes |
+| `docker` | Gera a imagem Docker e publica no Docker Hub apenas na `main` e fora de Pull Requests |
+| `security` | Executa scan Trivy da imagem e do filesystem |
+| `kubernetes-validate` | Renderiza os manifests com `kubectl kustomize k8s` |
 
-### Imagens publicadas
-
-Em eventos com acesso aos secrets do repositorio, a pipeline publica:
-
-```text
-DOCKERHUB_USERNAME/oficina-tech-challenge:latest
-DOCKERHUB_USERNAME/oficina-tech-challenge:<github.sha>
-```
-
-Em pull requests, a imagem e buildada para validacao, mas nao e enviada ao Docker Hub.
-
-### Secrets necessarios
-
-Configurar no GitHub em `Settings > Secrets and variables > Actions`:
+Secrets necessários no GitHub:
 
 ```text
 DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
 ```
 
-Nenhum secret real deve ser versionado no repositorio.
+## Segurança
 
-### Limitacoes atuais
+- JWT obrigatório via `JWT_SECRET`.
+- Helmet aplicado globalmente.
+- CORS configurável por variável de ambiente.
+- Docker executando como usuário não root.
+- Validação de entrada com `ValidationPipe`.
+- Trivy executado no pipeline.
+- Relatório complementar em `docs/security-report.md`.
 
-- A pipeline valida os manifests Kubernetes, mas ainda nao aplica deploy em cluster remoto.
-- Terraform, observabilidade e deploy cloud ficam para etapas posteriores.
-- O scan Trivy nao bloqueia a entrega por vulnerabilidades transitivas ja conhecidas; o resultado aparece no log da pipeline para acompanhamento.
+## Como Executar Localmente
 
----
-
-## Como Executar
-
-1. Configure o arquivo `.env` na raiz do projeto:
+1. Configure o arquivo `.env`:
 
 ```env
 DATABASE_URL="postgresql://postgres:supersecretpassword@localhost:15432/oficina_db?schema=public"
@@ -285,98 +256,67 @@ CORS_ORIGIN=http://localhost:3000
 PORT=3000
 ```
 
-2. Suba o ambiente e inicie a aplicação:
+2. Suba o ambiente:
 
 ```bash
 npm install
-docker-compose up -d
+docker compose up -d
 npm run start:dev
 ```
 
-3. Acesse a documentação Swagger em: `http://localhost:3000/docs`
+3. Acesse:
 
----
+- API: `http://localhost:3000`
+- Health check: `http://localhost:3000/health`
+- Swagger: `http://localhost:3000/docs`
 
-## Autenticação (JWT)
+## Autenticação
 
-A API possui rotas protegidas por **Bearer Token JWT**.
+Rota pública:
 
-Para autenticação via Swagger (`http://localhost:3000/docs`):
+```http
+POST /auth/login
+```
 
-1. Acesse a rota pública: `POST /auth/login`
-2. Envie o payload: `{"username": "admin", "password": "admin"}`
-3. Copie o `access_token` retornado na resposta
-4. Clique em **Authorize** no painel superior do Swagger e insira: `Bearer <token>`
+Payload de demonstração:
 
----
+```json
+{
+  "username": "admin",
+  "password": "admin"
+}
+```
 
-## Entregáveis do Projeto (Fase 1)
+Use o token retornado como Bearer Token no Swagger.
 
-| Entregável | Localização |
-|------------|-------------|
-| Documentação DDD - Event Storming | [docs/event-storming.md](docs/event-storming.md) |
-| Documentação DDD - Bounded Contexts | [docs/bounded-contexts.md](docs/bounded-contexts.md) |
-| Documentação DDD - Linguagem Ubíqua | [docs/ubiquitous-language.md](docs/ubiquitous-language.md) |
-| Documentação DDD - Arquitetura | [docs/architecture.md](docs/architecture.md) |
-| Relatório de Segurança | [docs/security-report.md](docs/security-report.md) |
-| Relatório Trivy | [trivy-report.txt](trivy-report.txt) |
-| Vídeo de Demonstração | [Apresentação](https://drive.google.com/file/d/1TP-5E37EJjAbyQwcOiKJv8tjguq1LDrq/view?usp=sharing) |
+## Testes
 
----
+O projeto possui testes automatizados unitários e de integração para os fluxos principais da aplicação.
 
-## Qualidade de Código e Testes
-
-O projeto conta com uma suíte abrangente de testes automatizados cobrindo todas as camadas da arquitetura.
-
-### Estratégia de Testes
-
-- **Testes unitários:** entidades de domínio, value objects (validação algorítmica de CPF/CNPJ e placa), use cases e exception filters.
-- **Testes de integração:** controllers HTTP via Supertest, validando rotas, status codes, guards e pipes de validação.
-- **Testes de repositório:** repositórios Prisma com mocks, garantindo cobertura da camada de infraestrutura.
-
-### Comandos
+Comandos:
 
 ```bash
-# Executar todos os testes
 npm test
-
-# Executar com relatório de cobertura
 npm run test:cov
 ```
 
-### Resultados
+## Documentação Complementar
 
-| Métrica | Valor |
-|---------|-------|
-| Test Suites | 54 |
-| Tests | 185 |
-| Passing | 100% |
+| Documento | Local |
+|-----------|-------|
+| Arquitetura | `docs/architecture.md` |
+| Bounded Contexts | `docs/bounded-contexts.md` |
+| Event Storming | `docs/event-storming.md` |
+| Linguagem Ubíqua | `docs/ubiquitous-language.md` |
+| Kubernetes | `docs/kubernetes.md` |
+| Terraform | `infra/terraform/README.md` |
+| Histórico da Fase 2 | `docs/phase-2-plan.md` |
+| Segurança | `docs/security-report.md` |
 
-### Cobertura de Código
+## Observabilidade
 
-| Métrica | Valor |
-|---------|-------|
-| Statements | 89.01% |
-| Branches | 76.17% |
-| Functions | 86.47% |
-| Lines | 88.00% |
-
-A cobertura atende ao critério de qualidade estabelecido (meta >= 80% em statements, functions e lines).
-
----
-
-## Qualidade de Código - Análise Estática (Opcional)
-
-O projeto possui suporte para análise estática com SonarQube via Docker:
-
-```bash
-docker-compose up -d sonarqube
-```
-
-A configuração está disponível em `sonar-project.properties`. A ferramenta pode ser utilizada para identificação de code smells, duplicações e acompanhamento de métricas de qualidade complementares ao Jest.
-
----
+Prometheus, Grafana, Loki, Jaeger e OpenTelemetry não fazem parte da implementação atual consolidada. São evoluções possíveis para uma próxima etapa.
 
 ## Autoria
 
-Projeto desenvolvido por **William Nascimento** como entrega do Tech Challenge Fase 1 - Pós-graduação em Arquitetura de Software, FIAP.
+Projeto desenvolvido como entrega do Tech Challenge Fase 2 da Pós-Tech FIAP em Arquitetura de Software.
