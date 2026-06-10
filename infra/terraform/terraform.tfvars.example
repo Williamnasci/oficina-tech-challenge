@@ -14,13 +14,19 @@ api_deployment_name   = "oficina-api"
 api_service_name      = "oficina-api"
 api_image             = "oficina-tech-challenge:latest"
 api_image_pull_policy = "IfNotPresent"
-api_replicas          = 1
+api_replicas          = 2
 api_service_type      = "LoadBalancer"
 api_service_port      = 80
 api_cpu_request       = "100m"
 api_memory_request    = "256Mi"
 api_cpu_limit         = "500m"
 api_memory_limit      = "512Mi"
+
+hpa_name         = "oficina-api-hpa"
+hpa_min_replicas = 2
+hpa_max_replicas = 6
+hpa_cpu_target   = 70
+hpa_memory_target = 75
 
 postgres_service_name      = "postgres"
 postgres_statefulset_name  = "postgres"

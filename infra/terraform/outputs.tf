@@ -37,3 +37,8 @@ output "api_service_name" {
   description = "Service Kubernetes criado para a API."
   value       = kubernetes_service.api.metadata[0].name
 }
+
+output "hpa_name" {
+  description = "Horizontal Pod Autoscaler criado para a API."
+  value       = kubernetes_horizontal_pod_autoscaler_v2.api.metadata[0].name
+}

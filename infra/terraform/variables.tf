@@ -61,7 +61,7 @@ variable "api_image_pull_policy" {
 variable "api_replicas" {
   description = "Quantidade inicial de réplicas da API."
   type        = number
-  default     = 1
+  default     = 2
 }
 
 variable "api_service_type" {
@@ -98,6 +98,36 @@ variable "api_memory_limit" {
   description = "Memory limit da API."
   type        = string
   default     = "512Mi"
+}
+
+variable "hpa_name" {
+  description = "Nome do Horizontal Pod Autoscaler da API."
+  type        = string
+  default     = "oficina-api-hpa"
+}
+
+variable "hpa_min_replicas" {
+  description = "Quantidade mínima de réplicas gerenciada pelo HPA."
+  type        = number
+  default     = 2
+}
+
+variable "hpa_max_replicas" {
+  description = "Quantidade máxima de réplicas gerenciada pelo HPA."
+  type        = number
+  default     = 6
+}
+
+variable "hpa_cpu_target" {
+  description = "Percentual médio de utilização de CPU alvo para o HPA."
+  type        = number
+  default     = 70
+}
+
+variable "hpa_memory_target" {
+  description = "Percentual médio de utilização de memória alvo para o HPA."
+  type        = number
+  default     = 75
 }
 
 variable "postgres_service_name" {

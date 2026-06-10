@@ -6,7 +6,7 @@ Esta pasta contém a fundação Terraform da Fase 2 do Tech Challenge.
 
 O objetivo é demonstrar Infraestrutura como Código para provisionar recursos Kubernetes do projeto Oficina Mecânica, mantendo compatibilidade com a estrutura já existente em `k8s/`.
 
-Nesta etapa, o Terraform provisiona a fundação, o banco PostgreSQL e a API:
+Nesta etapa, o Terraform provisiona a fundação, o banco PostgreSQL, a API e autoscaling horizontal:
 
 - Namespace;
 - ConfigMap;
@@ -16,8 +16,9 @@ Nesta etapa, o Terraform provisiona a fundação, o banco PostgreSQL e a API:
 - PersistentVolumeClaim criado pelo StatefulSet.
 - Deployment da API;
 - Service da API.
+- HPA da API.
 
-Autoscaling e observabilidade serão adicionados nas próximas etapas.
+Observabilidade será adicionada nas próximas etapas.
 
 ## Estrutura da pasta
 
@@ -45,10 +46,11 @@ O escopo atual cria:
 - `PersistentVolumeClaim`: volume criado automaticamente pelo `volume_claim_template` do StatefulSet.
 - `kubernetes_deployment`: execução da API NestJS com init container para migrations;
 - `kubernetes_service`: exposição da API no cluster.
+- `kubernetes_horizontal_pod_autoscaler_v2`: autoscaling horizontal da API por CPU.
 
 Ainda não fazem parte desta fundação:
 
-- HPA.
+- Observabilidade.
 
 Esses recursos serão adicionados de forma incremental para reduzir risco e facilitar validação.
 
@@ -165,9 +167,9 @@ Neste momento:
 
 As próximas evoluções previstas para Terraform são:
 
-1. Adicionar HPA;
-2. Documentar a execução completa em cluster local;
-3. Avaliar integração futura com CI/CD apenas para `terraform fmt` e `terraform validate`.
+1. Documentar a execução completa em cluster local;
+2. Avaliar integração futura com CI/CD apenas para `terraform fmt` e `terraform validate`;
+3. Preparar integração com observabilidade nas próximas etapas da Fase 2.
 
 ## Observações
 
