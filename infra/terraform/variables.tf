@@ -34,6 +34,72 @@ variable "secret_name" {
   default     = "oficina-secrets"
 }
 
+variable "api_deployment_name" {
+  description = "Nome do Deployment Kubernetes da API."
+  type        = string
+  default     = "oficina-api"
+}
+
+variable "api_service_name" {
+  description = "Nome do Service Kubernetes da API."
+  type        = string
+  default     = "oficina-api"
+}
+
+variable "api_image" {
+  description = "Imagem Docker usada pela API."
+  type        = string
+  default     = "oficina-tech-challenge:latest"
+}
+
+variable "api_image_pull_policy" {
+  description = "Política de pull da imagem da API."
+  type        = string
+  default     = "IfNotPresent"
+}
+
+variable "api_replicas" {
+  description = "Quantidade inicial de réplicas da API."
+  type        = number
+  default     = 1
+}
+
+variable "api_service_type" {
+  description = "Tipo do Service Kubernetes da API."
+  type        = string
+  default     = "LoadBalancer"
+}
+
+variable "api_service_port" {
+  description = "Porta exposta pelo Service Kubernetes da API."
+  type        = number
+  default     = 80
+}
+
+variable "api_cpu_request" {
+  description = "CPU request da API."
+  type        = string
+  default     = "100m"
+}
+
+variable "api_memory_request" {
+  description = "Memory request da API."
+  type        = string
+  default     = "256Mi"
+}
+
+variable "api_cpu_limit" {
+  description = "CPU limit da API."
+  type        = string
+  default     = "500m"
+}
+
+variable "api_memory_limit" {
+  description = "Memory limit da API."
+  type        = string
+  default     = "512Mi"
+}
+
 variable "postgres_service_name" {
   description = "Nome do Service Kubernetes do PostgreSQL."
   type        = string

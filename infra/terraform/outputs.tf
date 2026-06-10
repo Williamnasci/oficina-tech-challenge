@@ -27,3 +27,13 @@ output "postgres_pvc_name" {
   description = "Nome esperado do PersistentVolumeClaim criado pelo StatefulSet."
   value       = local.postgres_pvc_name
 }
+
+output "api_deployment_name" {
+  description = "Deployment Kubernetes criado para a API."
+  value       = kubernetes_deployment.api.metadata[0].name
+}
+
+output "api_service_name" {
+  description = "Service Kubernetes criado para a API."
+  value       = kubernetes_service.api.metadata[0].name
+}

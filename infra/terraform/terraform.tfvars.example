@@ -10,6 +10,18 @@ app_port       = 3000
 jwt_expires_in = "1d"
 cors_origin    = "*"
 
+api_deployment_name   = "oficina-api"
+api_service_name      = "oficina-api"
+api_image             = "oficina-tech-challenge:latest"
+api_image_pull_policy = "IfNotPresent"
+api_replicas          = 1
+api_service_type      = "LoadBalancer"
+api_service_port      = 80
+api_cpu_request       = "100m"
+api_memory_request    = "256Mi"
+api_cpu_limit         = "500m"
+api_memory_limit      = "512Mi"
+
 postgres_service_name      = "postgres"
 postgres_statefulset_name  = "postgres"
 postgres_volume_claim_name = "postgres-data"

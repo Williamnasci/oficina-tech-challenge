@@ -197,3 +197,134 @@ resource "kubernetes_stateful_set" "postgres" {
     }
   }
 }
+
+resource "kubernetes_deployment" "api" {
+  metadata {
+    name      = var.api_deployment_name
+    namespace = kubernetes_namespace.oficina.metadata[0].name
+    labels    = local.common_labels
+  }
+
+  spec {
+    replicas = var.api_replicas
+
+    selector {
+      match_labels = {
+        app = var.app_name
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = var.app_name
+        }
+      }
+
+      spec {
+        init_container {
+          name              = "prisma-migrate"
+          image             = var.api_image
+          image_pull_policy = var.api_image_pull_policy
+          command           = ["sh", "-c", "npx prisma migrate deploy"]
+
+          env_from {
+            config_map_ref {
+              name = kubernetes_config_map.api_config.metadata[0].name
+            }
+          }
+
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.app_secrets.metadata[0].name
+            }
+          }
+        }
+
+        container {
+          name              = var.app_name
+          image             = var.api_image
+          image_pull_policy = var.api_image_pull_policy
+
+          port {
+            container_port = var.app_port
+            name           = "http"
+          }
+
+          env_from {
+            config_map_ref {
+              name = kubernetes_config_map.api_config.metadata[0].name
+            }
+          }
+
+          env_from {
+            secret_ref {
+              name = kubernetes_secret.app_secrets.metadata[0].name
+            }
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/health"
+              port = "http"
+            }
+
+            initial_delay_seconds = 10
+            period_seconds        = 10
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/health"
+              port = "http"
+            }
+
+            initial_delay_seconds = 30
+            period_seconds        = 20
+          }
+
+          resources {
+            requests = {
+              cpu    = var.api_cpu_request
+              memory = var.api_memory_request
+            }
+
+            limits = {
+              cpu    = var.api_cpu_limit
+              memory = var.api_memory_limit
+            }
+          }
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    kubernetes_service.postgres,
+    kubernetes_stateful_set.postgres,
+  ]
+}
+
+resource "kubernetes_service" "api" {
+  wait_for_load_balancer = false
+
+  metadata {
+    name      = var.api_service_name
+    namespace = kubernetes_namespace.oficina.metadata[0].name
+    labels    = local.common_labels
+  }
+
+  spec {
+    type = var.api_service_type
+
+    selector = {
+      app = var.app_name
+    }
+
+    port {
+      name        = "http"
+      port        = var.api_service_port
+      target_port = "http"
+    }
+  }
+}

@@ -6,7 +6,7 @@ Esta pasta contém a fundação Terraform da Fase 2 do Tech Challenge.
 
 O objetivo é demonstrar Infraestrutura como Código para provisionar recursos Kubernetes do projeto Oficina Mecânica, mantendo compatibilidade com a estrutura já existente em `k8s/`.
 
-Nesta etapa, o Terraform provisiona a fundação e o banco PostgreSQL:
+Nesta etapa, o Terraform provisiona a fundação, o banco PostgreSQL e a API:
 
 - Namespace;
 - ConfigMap;
@@ -14,8 +14,10 @@ Nesta etapa, o Terraform provisiona a fundação e o banco PostgreSQL:
 - Service do PostgreSQL;
 - StatefulSet do PostgreSQL;
 - PersistentVolumeClaim criado pelo StatefulSet.
+- Deployment da API;
+- Service da API.
 
-Os recursos da aplicação serão adicionados nas próximas etapas.
+Autoscaling e observabilidade serão adicionados nas próximas etapas.
 
 ## Estrutura da pasta
 
@@ -41,11 +43,11 @@ O escopo atual cria:
 - `kubernetes_service`: Service interno para o PostgreSQL;
 - `kubernetes_stateful_set`: execução do PostgreSQL com armazenamento persistente;
 - `PersistentVolumeClaim`: volume criado automaticamente pelo `volume_claim_template` do StatefulSet.
+- `kubernetes_deployment`: execução da API NestJS com init container para migrations;
+- `kubernetes_service`: exposição da API no cluster.
 
 Ainda não fazem parte desta fundação:
 
-- `Deployment` da API;
-- `Service` da API;
 - HPA.
 
 Esses recursos serão adicionados de forma incremental para reduzir risco e facilitar validação.
@@ -163,11 +165,9 @@ Neste momento:
 
 As próximas evoluções previstas para Terraform são:
 
-1. Criar o `Deployment` da API;
-2. Criar o `Service` da API;
-3. Adicionar HPA;
-4. Documentar a execução completa em cluster local;
-5. Avaliar integração futura com CI/CD apenas para `terraform fmt` e `terraform validate`.
+1. Adicionar HPA;
+2. Documentar a execução completa em cluster local;
+3. Avaliar integração futura com CI/CD apenas para `terraform fmt` e `terraform validate`.
 
 ## Observações
 
@@ -175,4 +175,4 @@ Os valores presentes em `terraform.tfvars.example` são apenas para demonstraç�
 
 Segredos reais não devem ser versionados. Além disso, o arquivo de estado do Terraform pode conter valores sensíveis, portanto deve ser protegido em ambientes reais.
 
-Esta fundação foi criada primeiro para permitir validação incremental antes de provisionar aplicação e autoscaling.
+Esta fundação foi criada primeiro para permitir validação incremental antes de provisionar autoscaling.
