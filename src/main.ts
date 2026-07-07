@@ -2,6 +2,8 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import * as express from 'express';
+import { join } from 'path';
 import { AppModule } from './app.module';
 import { DomainExceptionFilter } from './shared/infrastructure/filters/domain-exception.filter';
 import { PrismaExceptionFilter } from './shared/infrastructure/filters/prisma-exception.filter';
@@ -9,7 +11,13 @@ import { PrismaExceptionFilter } from './shared/infrastructure/filters/prisma-ex
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.use(helmet());
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+    }),
+  );
+
+  app.use(express.static(join(process.cwd(), 'public')));
 
   const corsOrigin = process.env.CORS_ORIGIN || '*';
 

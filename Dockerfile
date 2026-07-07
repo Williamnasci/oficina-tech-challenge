@@ -32,6 +32,7 @@ RUN npm config set fetch-retries 5 \
     && npm config set fetch-retry-maxtimeout 120000 \
     && npm ci --omit=dev --no-audit --no-fund
 COPY --from=builder /usr/src/app/dist ./dist
+COPY public ./public
 
 RUN DATABASE_URL="postgresql://postgres:postgres@localhost:5432/oficina_db?schema=public" npx prisma generate
 
