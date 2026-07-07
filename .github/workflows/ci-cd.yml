@@ -148,7 +148,7 @@ jobs:
 
   deploy:
     name: Deploy to Kubernetes
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.DEPLOY_RUNNER || 'ubuntu-latest' }}
     needs: [docker, kubernetes-validate]
     if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
 
@@ -164,19 +164,20 @@ jobs:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
         run: |
-          if [ -z "$KUBE_CONFIG" ]; then
-            echo "--------------------------------------------------------"
-            echo "Aviso: KUBE_CONFIG não está definido nos segredos do GitHub."
-            echo "O deploy real no cluster Kubernetes foi ignorado com sucesso."
-            echo "Configure o segredo KUBE_CONFIG se desejar deploy real em produção."
-            echo "--------------------------------------------------------"
-            exit 0
+          if [ -n "$KUBE_CONFIG" ]; then
+            echo "Configurando credenciais do cluster remoto..."
+            mkdir -p ~/.kube
+            echo "$KUBE_CONFIG" > ~/.kube/config
+            chmod 600 ~/.kube/config
+          else
+            echo "KUBE_CONFIG não informado; usando o contexto Kubernetes do runner."
           fi
 
-          echo "Configurando credenciais do Kubernetes..."
-          mkdir -p ~/.kube
-          echo "$KUBE_CONFIG" > ~/.kube/config
-          chmod 600 ~/.kube/config
+          if ! kubectl cluster-info; then
+            echo "Nenhum cluster Kubernetes acessível. Configure KUBE_CONFIG para um cluster remoto"
+            echo "ou DEPLOY_RUNNER=self-hosted para usar o cluster local do runner."
+            exit 1
+          fi
 
           # Define o username do Docker Hub padrão ou o do segredo
           USERNAME="$DOCKERHUB_USERNAME"
@@ -197,4 +198,3 @@ jobs:
 
           echo "Aguardando o rollout da API Oficina..."
           kubectl rollout status deployment/oficina-api -n oficina --timeout=180s
-
