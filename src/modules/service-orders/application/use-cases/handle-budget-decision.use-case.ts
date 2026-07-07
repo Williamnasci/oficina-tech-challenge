@@ -1,12 +1,15 @@
-import { Inject, Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { BudgetDecision, BudgetDecisionDto } from '../dto/budget-decision.dto';
 import { ServiceOrderRepository } from '../../domain/repositories/service-order.repository';
+import { StatusNotificationGateway } from '../ports/status-notification.gateway';
 
 @Injectable()
 export class HandleBudgetDecisionUseCase {
     constructor(
         @Inject(ServiceOrderRepository)
         private readonly serviceOrderRepository: ServiceOrderRepository,
+        @Optional() @Inject(StatusNotificationGateway)
+        private readonly statusNotificationGateway?: StatusNotificationGateway,
     ) { }
 
     async execute(serviceOrderId: string, input: BudgetDecisionDto): Promise<void> {
@@ -23,5 +26,6 @@ export class HandleBudgetDecisionUseCase {
         }
 
         await this.serviceOrderRepository.update(serviceOrder);
+        await this.statusNotificationGateway?.notifyStatusChanged({ serviceOrderId, status: serviceOrder.status, occurredAt: new Date().toISOString() });
     }
 }

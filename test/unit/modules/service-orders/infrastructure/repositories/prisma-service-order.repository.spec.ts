@@ -72,6 +72,12 @@ describe('PrismaServiceOrderRepository', () => {
                 status: ServiceOrderStatus.IN_PROGRESS,
                 createdAt: new Date('2026-05-05T12:00:00.000Z'),
             };
+            const oldApproved = {
+                ...mockDbOrder,
+                id: 'approved-old',
+                status: ServiceOrderStatus.APPROVED,
+                createdAt: new Date('2026-05-05T09:00:00.000Z'),
+            };
             const oldReceived = {
                 ...mockDbOrder,
                 id: 'received-old',
@@ -79,7 +85,7 @@ describe('PrismaServiceOrderRepository', () => {
                 createdAt: new Date('2026-05-05T08:00:00.000Z'),
             };
 
-            prisma.serviceOrder.findMany.mockResolvedValue([oldReceived, oldWaiting, newProgress]);
+            prisma.serviceOrder.findMany.mockResolvedValue([oldReceived, oldWaiting, newProgress, oldApproved]);
 
             const result = await repository.findOperationalQueue();
 
@@ -89,6 +95,7 @@ describe('PrismaServiceOrderRepository', () => {
                         status: expect.objectContaining({
                             in: expect.arrayContaining([
                                 ServiceOrderStatus.IN_PROGRESS,
+                                ServiceOrderStatus.APPROVED,
                                 ServiceOrderStatus.WAITING_APPROVAL,
                                 ServiceOrderStatus.IN_DIAGNOSIS,
                                 ServiceOrderStatus.RECEIVED,
@@ -99,6 +106,7 @@ describe('PrismaServiceOrderRepository', () => {
             );
             expect(result.map((order) => order.id)).toEqual([
                 'progress-new',
+                'approved-old',
                 'waiting-old',
                 'received-old',
             ]);

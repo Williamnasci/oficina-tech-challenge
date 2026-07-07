@@ -63,11 +63,12 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
     async findOperationalQueue(): Promise<ServiceOrder[]> {
         const priority: Record<ServiceOrderStatus, number> = {
             [ServiceOrderStatus.IN_PROGRESS]: 0,
-            [ServiceOrderStatus.WAITING_APPROVAL]: 1,
-            [ServiceOrderStatus.IN_DIAGNOSIS]: 2,
-            [ServiceOrderStatus.RECEIVED]: 3,
-            [ServiceOrderStatus.FINISHED]: 4,
-            [ServiceOrderStatus.DELIVERED]: 5,
+            [ServiceOrderStatus.APPROVED]: 1,
+            [ServiceOrderStatus.WAITING_APPROVAL]: 2,
+            [ServiceOrderStatus.IN_DIAGNOSIS]: 3,
+            [ServiceOrderStatus.RECEIVED]: 4,
+            [ServiceOrderStatus.FINISHED]: 5,
+            [ServiceOrderStatus.DELIVERED]: 6,
         };
 
         const data = await this.prisma.serviceOrder.findMany({
@@ -75,6 +76,7 @@ export class PrismaServiceOrderRepository implements ServiceOrderRepository {
                 status: {
                     in: [
                         ServiceOrderStatus.IN_PROGRESS,
+                        ServiceOrderStatus.APPROVED,
                         ServiceOrderStatus.WAITING_APPROVAL,
                         ServiceOrderStatus.IN_DIAGNOSIS,
                         ServiceOrderStatus.RECEIVED,

@@ -93,6 +93,18 @@ describe('ServiceOrders transactional budget and stock flow (real integration)',
 
         await request(app.getHttpServer())
             .patch(`/service-orders/${orderId}/approve-budget`)
+            .set('Authorization', `Bearer ${accessToken}`)
+            .expect(204);
+
+        const approvedOrder = await prisma.serviceOrder.findUniqueOrThrow({
+            where: { id: orderId },
+        });
+        expect(approvedOrder.status).toBe(ServiceOrderStatus.APPROVED);
+        expect(approvedOrder.startedAt).toBeNull();
+
+        await request(app.getHttpServer())
+            .patch(`/service-orders/${orderId}/start-execution`)
+            .set('Authorization', `Bearer ${accessToken}`)
             .expect(204);
 
         const persistedOrder = await prisma.serviceOrder.findUniqueOrThrow({

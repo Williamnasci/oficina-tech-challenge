@@ -92,6 +92,8 @@ export class ServiceOrdersController {
     }
 
     @Get()
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Buscar ordens de serviço por documento do cliente (CPF/CNPJ)' })
     @ApiQuery({
         name: 'document',
@@ -137,6 +139,8 @@ export class ServiceOrdersController {
     }
 
     @Get(':id')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Buscar ordem de serviço por id com itens' })
     @ApiParam({
         name: 'id',
@@ -154,6 +158,8 @@ export class ServiceOrdersController {
     }
 
     @Get(':id/status')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Consultar status da ordem de servico' })
     @ApiParam({
         name: 'id',
@@ -244,6 +250,8 @@ export class ServiceOrdersController {
     }
 
     @Patch(':id/approve-budget')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Aprovar orçamento' })
     @ApiParam({
@@ -258,6 +266,8 @@ export class ServiceOrdersController {
     }
 
     @Post(':id/budget-decision')
+    @ApiBearerAuth()
+    @UseGuards(JwtAuthGuard)
     @HttpCode(HttpStatus.NO_CONTENT)
     @ApiOperation({ summary: 'Receber decisao externa de orcamento' })
     @ApiParam({

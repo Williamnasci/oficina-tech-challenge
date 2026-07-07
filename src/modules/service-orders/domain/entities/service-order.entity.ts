@@ -72,8 +72,7 @@ export class ServiceOrder {
             throw new DomainException('Only service orders waiting approval can be approved.');
         }
 
-        this.status = ServiceOrderStatus.IN_PROGRESS;
-        this.startedAt = new Date();
+        this.status = ServiceOrderStatus.APPROVED;
         this.touch();
     }
 
@@ -91,8 +90,8 @@ export class ServiceOrder {
             return;
         }
 
-        if (this.status !== ServiceOrderStatus.WAITING_APPROVAL) {
-            throw new DomainException('Service order must be waiting approval before starting execution.');
+        if (this.status !== ServiceOrderStatus.APPROVED) {
+            throw new DomainException('Service order must be approved before starting execution.');
         }
 
         this.status = ServiceOrderStatus.IN_PROGRESS;

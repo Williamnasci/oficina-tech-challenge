@@ -10,8 +10,8 @@ describe('ServiceOrder Entity - Extended', () => {
         });
 
         order.approveBudget();
-        expect(order.status).toBe(ServiceOrderStatus.IN_PROGRESS);
-        expect(order.startedAt).toBeTruthy();
+        expect(order.status).toBe(ServiceOrderStatus.APPROVED);
+        expect(order.startedAt).toBeNull();
     });
 
     it('should throw when approving budget not in WAITING_APPROVAL', () => {
@@ -68,10 +68,10 @@ describe('ServiceOrder Entity - Extended', () => {
         expect(() => order.sendBudgetForApproval()).toThrow(DomainException);
     });
 
-    it('should start execution when WAITING_APPROVAL', () => {
+    it('should start execution when APPROVED', () => {
         const order = new ServiceOrder({
             id: '1', customerId: 'c-1', vehicleId: 'v-1',
-            status: ServiceOrderStatus.WAITING_APPROVAL,
+            status: ServiceOrderStatus.APPROVED,
         });
 
         order.startExecution();

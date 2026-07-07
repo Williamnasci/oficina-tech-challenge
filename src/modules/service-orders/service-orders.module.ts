@@ -20,6 +20,8 @@ import { PrismaServiceOrderRepository } from './infrastructure/repositories/pris
 import { ServiceOrdersController } from './interfaces/http/controllers/service-orders.controller';
 import { CustomersModule } from '../customers/customers.module';
 import { VehiclesModule } from '../vehicles/vehicles.module';
+import { StatusNotificationGateway } from './application/ports/status-notification.gateway';
+import { WebhookStatusNotificationGateway } from './infrastructure/notifications/webhook-status-notification.gateway';
 
 @Module({
     imports: [CustomersModule, VehiclesModule],
@@ -44,6 +46,10 @@ import { VehiclesModule } from '../vehicles/vehicles.module';
         {
             provide: ServiceOrderRepository,
             useClass: PrismaServiceOrderRepository,
+        },
+        {
+            provide: StatusNotificationGateway,
+            useClass: WebhookStatusNotificationGateway,
         },
     ],
     exports: [ServiceOrderRepository],
