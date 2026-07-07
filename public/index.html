@@ -1111,13 +1111,13 @@
       <!-- View 3: Ordens de Serviço (Busca, Detalhes e Inclusão) -->
       <section id="view-service-orders" class="view-section">
         <div class="card">
-          <h2 style="margin-bottom: 16px; font-size: 1.15rem; font-weight: 700;">Consulta e Gestão de Ordens de Serviço</h2>
+          <h2 style="margin-bottom: 16px; font-size: 1.15rem; font-weight: 700;">Histórico e Gestão de Ordens de Serviço</h2>
           <div class="form-row" style="grid-template-columns: 1fr auto; align-items: flex-end; margin-bottom: 24px;">
             <div class="form-group" style="margin-bottom:0;">
-              <label for="searchDoc">Buscar por Documento do Cliente (CPF/CNPJ)</label>
-              <input type="text" id="searchDoc" placeholder="Digite o documento cadastrado para buscar as OS..." value="52998224725">
+              <label for="searchDoc">Filtrar por Documento do Cliente (CPF/CNPJ)</label>
+              <input type="text" id="searchDoc" placeholder="Deixe em branco para listar todo o histórico de OS">
             </div>
-            <button id="searchOSBtn" class="btn" style="height: 44px; padding: 0 30px;">Buscar Ordens</button>
+            <button id="searchOSBtn" class="btn" style="height: 44px; padding: 0 30px;">Atualizar Lista</button>
           </div>
 
           <div class="table-container">
@@ -1135,7 +1135,7 @@
               <tbody id="searchOSResult">
                 <tr>
                   <td colspan="6" style="text-align: center; color: var(--text-muted); padding: 30px;">
-                    Digite o documento acima e clique em "Buscar Ordens" para pesquisar.
+                    Carregando histórico de ordens de serviço...
                   </td>
                 </tr>
               </tbody>
@@ -1744,7 +1744,7 @@
     const viewMetaData = {
       'dashboard': { title: 'Fila Operacional', subtitle: 'Acompanhamento e evolução de ordens de serviço ativas na oficina.' },
       'create-os': { title: 'Nova Ordem de Serviço', subtitle: 'Abertura rápida com cadastro simplificado e seleção de itens.' },
-      'service-orders': { title: 'Ordens de Serviço', subtitle: 'Pesquise ordens por CPF/CNPJ de cliente, consulte detalhes e adicione itens.' },
+      'service-orders': { title: 'Ordens de Serviço', subtitle: 'Consulte o histórico completo, filtre por CPF/CNPJ e gerencie os detalhes das OS.' },
       'customers-vehicles': { title: 'Clientes e Veículos', subtitle: 'Crie e consulte o cadastro de clientes e automóveis.' },
       'catalogs': { title: 'Catálogos & Serviços', subtitle: 'Gestão de estoque de peças e cadastro de novos serviços prestados.' },
       'budget-decision': { title: 'Simulador de Orçamentos', subtitle: 'Simule o feedback de aprovação/rejeição enviado pelo cliente.' },
@@ -1772,10 +1772,8 @@
         } else if (targetView === 'create-os') {
           loadCreateOsFormOptions();
         } else if (targetView === 'service-orders') {
-          const lastDoc = localStorage.getItem('lastCustomerDocument');
-          if (lastDoc) {
-            document.getElementById('searchDoc').value = lastDoc;
-          }
+          document.getElementById('searchDoc').value = '';
+          searchServiceOrders();
         } else if (targetView === 'budget-decision') {
           const lastId = localStorage.getItem('lastServiceOrderId');
           if (lastId) {
@@ -2235,20 +2233,19 @@
     async function searchServiceOrders() {
       const doc = document.getElementById('searchDoc').value.trim();
       const resultsContainer = document.getElementById('searchOSResult');
-      
-      if (!doc) {
-        showToast('Informe o documento para buscar.', 'warning');
-        return;
-      }
 
-      resultsContainer.innerHTML = '<tr><td colspan="6" style="text-align:center;">Pesquisando...</td></tr>';
+      resultsContainer.innerHTML = `<tr><td colspan="6" style="text-align:center;">${doc ? 'Pesquisando...' : 'Carregando histórico...'}</td></tr>`;
       await loadResolutionEntities();
 
       try {
-        const orders = await apiRequest(`/service-orders?document=${doc}`);
+        const query = doc ? `?document=${encodeURIComponent(doc)}` : '';
+        const orders = await apiRequest(`/service-orders${query}`);
         
         if (!orders || orders.length === 0) {
-          resultsContainer.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">Nenhuma ordem encontrada para o documento informado.</td></tr>';
+          const emptyMessage = doc
+            ? 'Nenhuma ordem encontrada para o documento informado.'
+            : 'Nenhuma ordem de serviço cadastrada até o momento.';
+          resultsContainer.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">${emptyMessage}</td></tr>`;
           return;
         }
 
