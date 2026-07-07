@@ -18,6 +18,7 @@ O sistema foi projetado para apoiar os principais processos de uma oficina mecâ
 - Controle de estoque com baixa automática.
 - Cálculo de orçamento.
 - Fluxo de aprovação e evolução de status.
+- Notificação externa das mudanças de status por webhook configurável.
 - Métricas operacionais de tempo médio de execução.
 
 ## Tecnologias Utilizadas
@@ -243,7 +244,12 @@ kubectl kustomize k8s
 
 ### Terraform
 
-A implementação Terraform fica em `infra/terraform/` e provisiona recursos equivalentes em um cluster Kubernetes local:
+A implementação Terraform fica em `infra/terraform/` e está dividida em duas etapas:
+
+- `infra/terraform/cluster`: cria um cluster Kubernetes Kind local com um control plane e dois workers.
+- `infra/terraform`: provisiona os workloads da aplicação no cluster criado.
+
+O provisionamento dos workloads inclui:
 
 - Namespace `oficina-terraform`.
 - ConfigMap.
@@ -255,7 +261,16 @@ A implementação Terraform fica em `infra/terraform/` e provisiona recursos equ
 - API Service.
 - HPA via `kubernetes_horizontal_pod_autoscaler_v2`.
 
-Comandos principais:
+Comandos principais para criar o cluster:
+
+```bash
+cd infra/terraform/cluster
+terraform init
+terraform apply
+cd ..
+```
+
+Depois, para provisionar a aplicação e o banco:
 
 ```bash
 cd infra/terraform
@@ -311,9 +326,32 @@ Payload esperado:
 
 ## HPA e Metrics Server
 
-O HPA está criado e associado ao Deployment da API.
+O HPA está criado e associado ao Deployment da API. Para demonstrar escalabilidade no cluster Kind, instale o Metrics Server e habilite a comunicação com os kubelets locais:
+
+```bash
+kubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.8.1/components.yaml
+kubectl patch deployment metrics-server -n kube-system --type=json -p='[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
+kubectl rollout status deployment/metrics-server -n kube-system
+kubectl top pods -n oficina
+```
+
+O argumento `--kubelet-insecure-tls` é destinado somente ao cluster local de demonstração.
+
+Para gerar carga durante a gravação do vídeo:
+
+```bash
+kubectl apply -f k8s/demo/load-generator.yaml
+kubectl get hpa,pods -n oficina -w
+kubectl delete -f k8s/demo/load-generator.yaml
+```
 
 Em clusters locais sem `metrics-server`, os targets de CPU e memória podem aparecer como `<unknown>`. Isso não invalida o provisionamento do HPA; apenas indica que o cluster não está expondo a API de métricas necessária para o cálculo dinâmico.
+
+## Notificação Externa de Status
+
+As mudanças de status da ordem de serviço são publicadas por uma porta de aplicação, implementada por um adaptador HTTP. Configure `STATUS_NOTIFICATION_WEBHOOK_URL` com um receptor HTTP, como o webhook.site durante a demonstração. O adaptador envia `serviceOrderId`, `status` e `occurredAt` em JSON.
+
+Se a variável não estiver configurada, a notificação é ignorada. Se o serviço externo estiver indisponível, a alteração de status já persistida não é revertida.
 
 ## CI/CD - GitHub Actions
 
@@ -333,19 +371,26 @@ Jobs:
 | `docker` | Gera a imagem Docker e publica no Docker Hub apenas na `main` e fora de Pull Requests |
 | `security` | Executa scan Trivy da imagem e do filesystem |
 | `kubernetes-validate` | Renderiza os manifests com `kubectl kustomize k8s` |
-| `deploy` | Executa deploy condicional no Kubernetes na branch `main` quando `KUBE_CONFIG` estiver configurado |
+| `deploy` | Executa deploy no Kubernetes na branch `main`, usando runner hospedado para cluster remoto ou runner self-hosted para cluster local |
 
 Secrets necessários no GitHub:
 
 ```text
 DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
-KUBE_CONFIG
+KUBE_CONFIG (necessário apenas para cluster remoto)
+```
+
+Variável opcional do repositório:
+
+```text
+DEPLOY_RUNNER=self-hosted
 ```
 
 - `DOCKERHUB_USERNAME` e `DOCKERHUB_TOKEN` são usados para publicar imagem no Docker Hub;
-- `KUBE_CONFIG` é usado apenas para deploy real no Kubernetes;
-- se `KUBE_CONFIG` não estiver configurado, o deploy é ignorado com sucesso pela pipeline.
+- `KUBE_CONFIG` configura o acesso a um cluster remoto;
+- para o cluster Kind local, configure a variável de repositório `DEPLOY_RUNNER=self-hosted`, mantenha um runner local ativo e grave o conteúdo de `infra/terraform/cluster/kind-kubeconfig` no secret `KUBE_CONFIG`;
+- o deploy falha quando nenhum cluster acessível está configurado, evitando um falso sucesso da entrega contínua.
 
 
 ## SonarQube
@@ -374,6 +419,7 @@ JWT_SECRET=sua_chave_secreta_aqui
 JWT_EXPIRES_IN=1d
 AUTH_DEMO_USERNAME=admin
 AUTH_DEMO_PASSWORD=admin
+STATUS_NOTIFICATION_WEBHOOK_URL=
 CORS_ORIGIN=http://localhost:3000
 PORT=3000
 ```

@@ -4,6 +4,12 @@
 
 Este documento registra a análise de segurança realizada na Fase 2 do Tech Challenge, com foco em dependências, imagem Docker, pipeline de CI/CD, observabilidade e práticas de hardening aplicadas ao backend da Oficina Mecânica.
 
+## Escopo e Premissas Acadêmicas
+
+Este é um projeto acadêmico executado em ambiente controlado e acessado somente pelo autor e pelos avaliadores. As credenciais presentes no Docker Compose, nos manifests Kubernetes e nos exemplos Terraform são exclusivamente demonstrativas e não devem ser reutilizadas em ambientes reais.
+
+O login administrativo simplificado, a exposição local de métricas e os scans não bloqueantes foram adotados para demonstrar os conceitos da fase sem introduzir complexidade operacional incompatível com o escopo. As recomendações de produção deste documento registram as adaptações necessárias para um ambiente público ou corporativo.
+
 ## Ferramentas Utilizadas
 
 * Trivy Scanner
@@ -28,13 +34,13 @@ Os scans podem registrar vulnerabilidades transitivas relacionadas a dependênci
 
 **npm audit --audit-level=high**
 
-* HIGH: 0
-* CRITICAL: 0
+* HIGH detectadas: 0
+* CRITICAL detectadas: 0
 
 **Trivy filesystem**
 
-* HIGH: 0
-* CRITICAL: 0
+* HIGH detectadas: 0
+* CRITICAL detectadas: 0
 
 **Vulnerabilidades moderadas remanescentes**
 
@@ -76,9 +82,9 @@ O workflow de CI/CD executa:
 * Docker push apenas na branch `main` e fora de Pull Requests.
 * Scan Trivy da imagem Docker.
 * Scan Trivy do filesystem.
-* Validação dos manifests Kubernetes.
+* Renderização dos manifests Kubernetes com Kustomize, como verificação sintática básica.
 
-O Trivy está configurado com `exit-code: '0'`, registrando os achados no log da pipeline sem bloquear a entrega acadêmica por vulnerabilidades transitivas conhecidas.
+O Trivy está configurado com `exit-code: '0'`. Portanto, os scans têm finalidade informativa e educacional: registram os achados no log, mas não atuam como gate de publicação ou deploy nesta fase acadêmica.
 
 ## Recomendações para Produção
 
@@ -115,10 +121,10 @@ A postura de segurança implementada está adequada ao contexto acadêmico do Te
 
 As validações executadas demonstraram:
 
-* Ausência de vulnerabilidades HIGH e CRITICAL.
+* Nenhuma vulnerabilidade HIGH ou CRITICAL foi detectada pelos comandos, parâmetros e bases de vulnerabilidades utilizados na execução local de junho de 2026.
 * Pipeline automatizada com verificação de segurança.
 * Hardening básico da aplicação e dos containers.
 * Monitoramento operacional da aplicação através de Prometheus e Grafana.
 * Processo de validação contínua suportado por testes automatizados e análise de vulnerabilidades.
 
-As vulnerabilidades moderadas remanescentes são transitivas, conhecidas, possuem impacto controlado no contexto atual e exigiriam alterações incompatíveis na stack utilizada. Por esse motivo, foram registradas como risco aceito para fins acadêmicos, permanecendo como item de acompanhamento para futuras evoluções do projeto.
+As vulnerabilidades moderadas remanescentes são transitivas e conhecidas. Considerando o ambiente acadêmico controlado e a incompatibilidade indicada pela correção automática, elas foram registradas como risco aceito para esta entrega e permanecem como item de acompanhamento. Essa aceitação não deve ser transportada automaticamente para um ambiente produtivo.
