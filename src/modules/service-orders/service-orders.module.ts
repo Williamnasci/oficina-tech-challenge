@@ -14,6 +14,7 @@ import { GetAverageExecutionTimeUseCase } from './application/use-cases/get-aver
 import { GetServiceOrderStatusUseCase } from './application/use-cases/get-service-order-status.use-case';
 import { HandleBudgetDecisionUseCase } from './application/use-cases/handle-budget-decision.use-case';
 import { ListOperationalServiceOrdersUseCase } from './application/use-cases/list-operational-service-orders.use-case';
+import { ListServiceOrdersUseCase } from './application/use-cases/list-service-orders.use-case';
 import { OpenServiceOrderUseCase } from './application/use-cases/open-service-order.use-case';
 import { ServiceOrderRepository } from './domain/repositories/service-order.repository';
 import { PrismaServiceOrderRepository } from './infrastructure/repositories/prisma-service-order.repository';
@@ -42,6 +43,7 @@ import { WebhookStatusNotificationGateway } from './infrastructure/notifications
         GetServiceOrderStatusUseCase,
         HandleBudgetDecisionUseCase,
         ListOperationalServiceOrdersUseCase,
+        ListServiceOrdersUseCase,
         OpenServiceOrderUseCase,
         {
             provide: ServiceOrderRepository,

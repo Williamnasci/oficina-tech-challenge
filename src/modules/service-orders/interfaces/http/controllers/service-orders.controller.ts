@@ -38,6 +38,7 @@ import { GetAverageExecutionTimeUseCase } from '../../../application/use-cases/g
 import { GetServiceOrderStatusUseCase } from '../../../application/use-cases/get-service-order-status.use-case';
 import { HandleBudgetDecisionUseCase } from '../../../application/use-cases/handle-budget-decision.use-case';
 import { ListOperationalServiceOrdersUseCase } from '../../../application/use-cases/list-operational-service-orders.use-case';
+import { ListServiceOrdersUseCase } from '../../../application/use-cases/list-service-orders.use-case';
 import { OpenServiceOrderUseCase } from '../../../application/use-cases/open-service-order.use-case';
 import { BudgetDecisionDto } from '../../../application/dto/budget-decision.dto';
 import { OpenServiceOrderDto } from '../../../application/dto/open-service-order.dto';
@@ -66,6 +67,7 @@ export class ServiceOrdersController {
         private readonly getServiceOrderStatusUseCase: GetServiceOrderStatusUseCase,
         private readonly handleBudgetDecisionUseCase: HandleBudgetDecisionUseCase,
         private readonly listOperationalServiceOrdersUseCase: ListOperationalServiceOrdersUseCase,
+        private readonly listServiceOrdersUseCase: ListServiceOrdersUseCase,
         private readonly openServiceOrderUseCase: OpenServiceOrderUseCase,
     ) { }
 
@@ -97,18 +99,22 @@ export class ServiceOrdersController {
     @ApiOperation({ summary: 'Buscar ordens de serviço por documento do cliente (CPF/CNPJ)' })
     @ApiQuery({
         name: 'document',
-        required: true,
+        required: false,
         description: 'Customer CPF or CNPJ',
         example: '52998224725',
     })
     @ApiResponse({
         status: 200,
         description: 'Service orders retrieved successfully.',
-        type: [ServiceOrderDetailsResponseDto],
+        type: [ServiceOrderResponseDto],
     })
-    async findByDocument(
-        @Query('document') document: string,
-    ): Promise<ServiceOrderDetailsResponseDto[]> {
+    async findAll(
+        @Query('document') document?: string,
+    ): Promise<ServiceOrderResponseDto[] | ServiceOrderDetailsResponseDto[]> {
+        if (!document) {
+            return this.listServiceOrdersUseCase.execute();
+        }
+
         return this.findServiceOrdersByDocumentUseCase.execute(document);
     }
 
