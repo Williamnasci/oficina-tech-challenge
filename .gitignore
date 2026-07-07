@@ -58,6 +58,7 @@ crash.log
 crash.*.log
 terraform.tfvars
 terraform.tfvars.json
+**/kind-kubeconfig
 override.tf
 override.tf.json
 *_override.tf

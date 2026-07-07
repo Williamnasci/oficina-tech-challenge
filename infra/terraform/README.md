@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Este diretório contém a implementação Terraform utilizada na Fase 2 do Tech Challenge para provisionar os recursos Kubernetes da aplicação Oficina Mecânica.
+Este diretório contém a implementação Terraform utilizada na Fase 2 do Tech Challenge para criar um cluster Kubernetes Kind local e provisionar os recursos da aplicação Oficina Mecânica.
 
 A proposta é demonstrar o uso de Infraestrutura como Código para criar, versionar e reproduzir a infraestrutura necessária à aplicação, complementando os manifests Kubernetes já existentes na pasta `k8s/`.
 
@@ -24,6 +24,7 @@ O Terraform provisiona os recursos necessários para executar a aplicação em u
 ```text
 infra/
 └── terraform/
+    ├── cluster/             # criação do cluster Kind local
     ├── versions.tf
     ├── providers.tf
     ├── variables.tf
@@ -51,14 +52,22 @@ infra/
 Antes de executar o Terraform, é necessário ter:
 
 - Terraform instalado localmente.
-- Cluster Kubernetes ativo, como Docker Desktop Kubernetes, Minikube ou Kind.
-- Arquivo `kubeconfig` válido.
-- Contexto Kubernetes apontando para o cluster desejado.
+- Docker ativo, usado pelo Kind para executar os nós do cluster.
 
-O provider Kubernetes usa, por padrão:
+Primeiro, crie o cluster local:
+
+```bash
+cd infra/terraform/cluster
+terraform init
+terraform apply
+cd ..
+```
+
+Essa etapa grava o kubeconfig em `infra/terraform/cluster/kind-kubeconfig`. O provider Kubernetes dos workloads usa, por padrão:
 
 ```hcl
-kube_config_path = "~/.kube/config"
+kube_config_path    = "./cluster/kind-kubeconfig"
+kube_config_context = "kind-oficina-tech-challenge"
 ```
 
 Se necessário, o contexto pode ser ajustado em `terraform.tfvars`.

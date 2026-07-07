@@ -27,6 +27,7 @@ services:
       CORS_ORIGIN: "*"
       AUTH_DEMO_USERNAME: "admin"
       AUTH_DEMO_PASSWORD: "admin"
+      STATUS_NOTIFICATION_WEBHOOK_URL: "${STATUS_NOTIFICATION_WEBHOOK_URL:-}"
     ports:
       - "3000:3000"
     depends_on:

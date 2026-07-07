@@ -1,5 +1,5 @@
-kube_config_path    = "~/.kube/config"
-kube_config_context = null
+kube_config_path    = "./cluster/kind-kubeconfig"
+kube_config_context = "kind-oficina-tech-challenge"
 
 namespace_name  = "oficina-terraform"
 app_name        = "oficina-api"
@@ -11,6 +11,7 @@ jwt_expires_in = "1d"
 cors_origin    = "*"
 auth_demo_username = "admin"
 auth_demo_password = "admin"
+status_notification_webhook_url = ""
 
 api_deployment_name   = "oficina-api"
 api_service_name      = "oficina-api"

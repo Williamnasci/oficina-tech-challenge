@@ -1,13 +1,13 @@
 variable "kube_config_path" {
   description = "Caminho do arquivo kubeconfig local usado pelo provider Kubernetes."
   type        = string
-  default     = "~/.kube/config"
+  default     = "./cluster/kind-kubeconfig"
 }
 
 variable "kube_config_context" {
   description = "Contexto opcional do kubeconfig. Deixe null para usar o contexto atual."
   type        = string
-  default     = null
+  default     = "kind-oficina-tech-challenge"
 }
 
 variable "namespace_name" {
@@ -182,6 +182,13 @@ variable "auth_demo_password" {
   description = "Senha demonstrativa usada no login acadêmico da API."
   type        = string
   default     = "admin"
+  sensitive   = true
+}
+
+variable "status_notification_webhook_url" {
+  description = "Webhook opcional que recebe as mudanças de status das ordens de serviço."
+  type        = string
+  default     = ""
   sensitive   = true
 }
 

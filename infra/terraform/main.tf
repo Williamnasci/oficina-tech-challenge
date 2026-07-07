@@ -47,12 +47,13 @@ resource "kubernetes_secret" "app_secrets" {
   type = "Opaque"
 
   data = {
-    POSTGRES_USER      = var.postgres_user
-    POSTGRES_PASSWORD  = var.postgres_password
-    POSTGRES_DB        = var.postgres_database
-    JWT_SECRET         = var.jwt_secret
-    AUTH_DEMO_PASSWORD = var.auth_demo_password
-    DATABASE_URL       = local.database_url
+    POSTGRES_USER                   = var.postgres_user
+    POSTGRES_PASSWORD               = var.postgres_password
+    POSTGRES_DB                     = var.postgres_database
+    JWT_SECRET                      = var.jwt_secret
+    AUTH_DEMO_PASSWORD              = var.auth_demo_password
+    DATABASE_URL                    = local.database_url
+    STATUS_NOTIFICATION_WEBHOOK_URL = var.status_notification_webhook_url
   }
 }
 
