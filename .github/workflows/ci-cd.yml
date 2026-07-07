@@ -159,42 +159,89 @@ jobs:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v5
 
-      - name: Deploy to Kubernetes
+      - name: Deploy to Kubernetes (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
           DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
         run: |
-          if [ -n "$KUBE_CONFIG" ]; then
-            echo "Configurando credenciais do cluster remoto..."
-            mkdir -p ~/.kube
-            echo "$KUBE_CONFIG" > ~/.kube/config
-            chmod 600 ~/.kube/config
+          $kubeConfig = $env:KUBE_CONFIG
+          $dockerhubUsername = $env:DOCKERHUB_USERNAME
+
+          if ($kubeConfig) {
+              Write-Host "Configurando credenciais do cluster remoto..."
+              $kubeDir = Join-Path $env:USERPROFILE ".kube"
+              if (-not (Test-Path $kubeDir)) {
+                  New-Item -Path $kubeDir -ItemType Directory -Force
+              }
+              $kubeConfigFile = Join-Path $kubeDir "config"
+              $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+              [System.IO.File]::WriteAllText($kubeConfigFile, $kubeConfig, $utf8NoBom)
+          } else {
+              Write-Host "KUBE_CONFIG não informado; usando o contexto Kubernetes do runner."
+          }
+
+          # Check if kubectl cluster-info runs successfully
+          kubectl cluster-info
+          if ($LASTEXITCODE -ne 0) {
+              Write-Error "Nenhum cluster Kubernetes acessível. Configure KUBE_CONFIG para um cluster remoto ou DEPLOY_RUNNER=self-hosted para usar o cluster local do runner."
+              exit 1
+          }
+
+          $username = $dockerhubUsername
+          if (-not $username) {
+              $username = "williamnasci"
+          }
+
+          $image = "${username}/${env:DOCKERHUB_IMAGE_NAME}:${{ github.sha }}"
+
+          Write-Host "Aplicando manifestos no cluster Kubernetes..."
+          kubectl apply -k k8s
+
+          Write-Host "Atualizando imagem do Deployment para $image..."
+          kubectl set image deployment/oficina-api "oficina-api=$image" "prisma-migrate=$image" -n oficina
+          if ($LASTEXITCODE -ne 0) {
+              exit $LASTEXITCODE
+          }
+
+          Write-Host "Aguardando o rollout da API Oficina..."
+          kubectl rollout status deployment/oficina-api -n oficina --timeout=180s
+
+      - name: Deploy to Kubernetes (Linux)
+        if: runner.os != 'Windows'
+        shell: bash
+        env:
+          KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_IMAGE_NAME: ${{ env.DOCKERHUB_IMAGE_NAME }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${KUBE_CONFIG:-}" ]; then
+              echo "Configurando credenciais do cluster remoto..."
+              mkdir -p "${HOME}/.kube"
+              printf '%s' "${KUBE_CONFIG}" > "${HOME}/.kube/config"
           else
-            echo "KUBE_CONFIG não informado; usando o contexto Kubernetes do runner."
+              echo "KUBE_CONFIG não informado; usando o contexto Kubernetes do runner."
           fi
 
-          if ! kubectl cluster-info; then
-            echo "Nenhum cluster Kubernetes acessível. Configure KUBE_CONFIG para um cluster remoto"
-            echo "ou DEPLOY_RUNNER=self-hosted para usar o cluster local do runner."
-            exit 1
-          fi
+          kubectl cluster-info || {
+              echo "Nenhum cluster Kubernetes acessível. Configure KUBE_CONFIG para um cluster remoto ou DEPLOY_RUNNER=self-hosted para usar o cluster local do runner." >&2
+              exit 1
+          }
 
-          # Define o username do Docker Hub padrão ou o do segredo
-          USERNAME="$DOCKERHUB_USERNAME"
-          if [ -z "$USERNAME" ]; then
-            USERNAME="williamnasci"
-          fi
-
-          echo "Atualizando tags de imagens temporariamente no runner para o Kustomize..."
-          # NOTA: kustomize edit altera o arquivo kustomization.yaml temporariamente no runner
-          # durante a execução da pipeline. Esta alteração NÃO é commitada no repositório.
-          # Atualiza tanto a imagem do container principal quanto do initContainer prisma-migrate.
-          cd k8s
-          kustomize edit set image williamnasci/oficina-tech-challenge=$USERNAME/${{ env.DOCKERHUB_IMAGE_NAME }}:${{ github.sha }}
-          cd ..
+          username="${DOCKERHUB_USERNAME:-williamnasci}"
+          image="${username}/${DOCKERHUB_IMAGE_NAME}:${{ github.sha }}"
 
           echo "Aplicando manifestos no cluster Kubernetes..."
           kubectl apply -k k8s
 
+          echo "Atualizando imagem do Deployment para ${image}..."
+          kubectl set image deployment/oficina-api "oficina-api=${image}" "prisma-migrate=${image}" -n oficina
+
           echo "Aguardando o rollout da API Oficina..."
           kubectl rollout status deployment/oficina-api -n oficina --timeout=180s
+
+
