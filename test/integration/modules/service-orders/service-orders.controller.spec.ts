@@ -17,6 +17,7 @@ import { GetAverageExecutionTimeUseCase } from '../../../../src/modules/service-
 import { GetServiceOrderStatusUseCase } from '../../../../src/modules/service-orders/application/use-cases/get-service-order-status.use-case';
 import { HandleBudgetDecisionUseCase } from '../../../../src/modules/service-orders/application/use-cases/handle-budget-decision.use-case';
 import { ListOperationalServiceOrdersUseCase } from '../../../../src/modules/service-orders/application/use-cases/list-operational-service-orders.use-case';
+import { ListServiceOrdersUseCase } from '../../../../src/modules/service-orders/application/use-cases/list-service-orders.use-case';
 import { OpenServiceOrderUseCase } from '../../../../src/modules/service-orders/application/use-cases/open-service-order.use-case';
 import { JwtAuthGuard } from '../../../../src/modules/auth/jwt-auth.guard';
 
@@ -98,6 +99,28 @@ describe('ServiceOrdersController (integration)', () => {
                 },
                 { provide: HandleBudgetDecisionUseCase, useValue: { execute: jest.fn().mockResolvedValue(undefined) } },
                 {
+                    provide: ListServiceOrdersUseCase,
+                    useValue: {
+                        execute: jest.fn().mockResolvedValue([
+                            {
+                                id: 'service-order-1',
+                                customerId: 'customer-1',
+                                vehicleId: 'vehicle-1',
+                                status: 'RECEIVED',
+                                diagnosis: null,
+                                servicesAmount: 150,
+                                stockItemsAmount: 400,
+                                totalAmount: 550,
+                                createdAt: new Date(),
+                                startedAt: null,
+                                finishedAt: null,
+                                deliveredAt: null,
+                                updatedAt: new Date(),
+                            },
+                        ]),
+                    },
+                },
+                {
                     provide: ListOperationalServiceOrdersUseCase,
                     useValue: {
                         execute: jest.fn().mockResolvedValue([
@@ -136,7 +159,18 @@ describe('ServiceOrdersController (integration)', () => {
     });
 
     afterEach(async () => {
-        await app.close();
+        await app?.close();
+    });
+
+    it('GET /service-orders should return service order history', async () => {
+        await request(app.getHttpServer())
+            .get('/service-orders')
+            .expect(200)
+            .expect(({ body }) => {
+                expect(body).toHaveLength(1);
+                expect(body[0].id).toBe('service-order-1');
+                expect(body[0].totalAmount).toBe(550);
+            });
     });
 
     it('GET /service-orders/:id should return service order details with items', async () => {
