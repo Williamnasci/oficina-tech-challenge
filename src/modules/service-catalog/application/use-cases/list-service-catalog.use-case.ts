@@ -10,7 +10,7 @@ export class ListServiceCatalogUseCase {
     ) { }
 
     async execute(): Promise<ServiceCatalogResponseDto[]> {
-        const services = await this.serviceCatalogRepository.findAll(true);
+        const services = await this.serviceCatalogRepository.findAll(false);
 
         return services.map((service) => ({
             id: service.id,
