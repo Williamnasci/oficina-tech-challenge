@@ -81,7 +81,7 @@ As regras centrais ficam no domínio e nos casos de uso. Detalhes como HTTP, Swa
 Fluxo de status:
 
 ```text
-RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
+RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> APPROVED -> IN_PROGRESS -> FINISHED -> DELIVERED
 ```
 
 ### Stock Items
@@ -146,7 +146,7 @@ As rotas da API estão descritas de forma interativa no Swagger e implementam os
     "status": "RECEIVED"
   }
   ```
-  *(Status possíveis: RECEIVED, IN_DIAGNOSIS, WAITING_APPROVAL, IN_PROGRESS, FINISHED, DELIVERED)*
+  *(Status possíveis: RECEIVED, IN_DIAGNOSIS, WAITING_APPROVAL, APPROVED, IN_PROGRESS, FINISHED, DELIVERED)*
 
 ### 3. Decisão Externa de Orçamento (Aprovação/Recusa)
 - **Método/Rota**: `POST /service-orders/:id/budget-decision`
@@ -154,7 +154,7 @@ As rotas da API estão descritas de forma interativa no Swagger e implementam os
 - **Payload de Exemplo**:
   ```json
   {
-    "approved": true
+    "decision": "APPROVED"
   }
   ```
 - **Resposta**: `204 No Content`
@@ -162,7 +162,7 @@ As rotas da API estão descritas de forma interativa no Swagger e implementam os
 ### 4. Listagem Operacional de Ordens de Serviço (Fila de Trabalho)
 - **Método/Rota**: `GET /service-orders/operational-queue`
 - **Autenticação**: Requer Bearer Token (JWT)
-- **Descrição**: Retorna a listagem de ordens de serviço ativas na oficina com ordenação estrita por prioridade de status (`IN_PROGRESS` > `WAITING_APPROVAL` > `IN_DIAGNOSIS` > `RECEIVED`) e as mais antigas primeiro. Exclui logicamente ordens finalizadas (`FINISHED`) e entregues (`DELIVERED`).
+- **Descrição**: Retorna a listagem de ordens de serviço ativas na oficina com ordenação estrita por prioridade de status (`IN_PROGRESS` > `APPROVED` > `WAITING_APPROVAL` > `IN_DIAGNOSIS` > `RECEIVED`) e as mais antigas primeiro. Exclui logicamente ordens finalizadas (`FINISHED`) e entregues (`DELIVERED`).
 - **Resposta**: `200 OK` com a lista ordenada de OS.
 
 ### Documentação Swagger
@@ -484,11 +484,10 @@ Use o token retornado como Bearer Token no Swagger.
 
 O projeto possui testes automatizados unitários e de integração para os fluxos principais da aplicação.
 
-Última validação local registrada:
+Validação local recente com `npm test -- --runInBand`:
 
-- 62 suítes de teste.
-- 211 testes automatizados.
-- Cobertura global: 94,35% statements e 93,82% lines.
+- 63 suítes de teste.
+- 216 testes automatizados.
 
 Comandos:
 

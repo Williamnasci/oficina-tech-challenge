@@ -130,4 +130,4 @@ Métricas expostas:
 
 **Meta:** ≥ 80% em statements, lines e functions.
 
-**Resultado atual:** a última validação local executou 62 suítes e 211 testes com sucesso, com cobertura global de 94,35% statements e 93,82% lines. A suíte inclui testes unitários e de integração, incluindo fluxo transacional real de orçamento e baixa de estoque.
+**Resultado atual:** a validação local recente com `npm test -- --runInBand` executou 63 suítes e 216 testes com sucesso. A suíte inclui testes unitários e de integração, incluindo fluxo transacional real de orçamento e baixa de estoque.

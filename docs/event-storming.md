@@ -50,6 +50,13 @@
 │                                    ┌──────────────┐                   │
 │                                    │ Aprovar      │                   │
 │                                    │ Orçamento    │                   │
+│                                    │  (APROVADA)  │                   │
+│                                    └──────┬───────┘                   │
+│                                           │                           │
+│                                           ▼                           │
+│                                    ┌──────────────┐                   │
+│                                    │ Iniciar      │                   │
+│                                    │ Execução     │                   │
 │                                    │(EM_EXECUÇÃO) │                   │
 │                                    └──────┬───────┘                   │
 │                                           │                           │
@@ -85,7 +92,7 @@
 | `OrcamentoCalculado` | (automático) | Sistema | ServiceOrder |
 | `OrcamentoEnviado` | Enviar Orçamento | Funcionário | ServiceOrder |
 | `OrcamentoAprovado` | Aprovar Orçamento | Cliente | ServiceOrder |
-| `ExecucaoIniciada` | Aprovar Orçamento / Iniciar Execução | Cliente/Funcionário/Sistema | ServiceOrder |
+| `ExecucaoIniciada` | Iniciar Execução | Funcionário/Sistema | ServiceOrder |
 | `OrdemFinalizada` | Finalizar OS | Funcionário | ServiceOrder |
 | `VeiculoEntregue` | Entregar Veículo | Funcionário | ServiceOrder |
 | `TempoMedioExecucaoConsultado` | Consultar Tempo Médio de Execução | Funcionário | ServiceOrder |
@@ -103,8 +110,8 @@
 | `AdicionarServico` | serviceOrderId, serviceId, quantity | Serviço deve existir e estar ativo |
 | `AdicionarPeca` | serviceOrderId, stockItemId, quantity | Peça deve existir, estoque suficiente |
 | `EnviarOrcamento` | serviceOrderId | Diagnóstico deve estar registrado |
-| `AprovarOrcamento` | serviceOrderId | Status deve ser AGUARDANDO_APROVACAO; OS muda para EM_EXECUCAO |
-| `IniciarExecucao` | serviceOrderId | Rota operacional alternativa; status deve ser AGUARDANDO_APROVACAO |
+| `AprovarOrcamento` | serviceOrderId | Status deve ser AGUARDANDO_APROVACAO; OS muda para APROVADA |
+| `IniciarExecucao` | serviceOrderId | Status deve ser APROVADA; OS muda para EM_EXECUCAO e registra o início |
 | `FinalizarOS` | serviceOrderId | Status deve ser EM_EXECUCAO |
 | `EntregarVeiculo` | serviceOrderId | Status deve ser FINALIZADA |
 | `ConsultarTempoMedioExecucao` | - | Considera OS com data de início e finalização |

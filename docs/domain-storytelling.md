@@ -72,15 +72,17 @@ Com o diagnóstico e os itens definidos, o funcionário envia o orçamento para 
 
 A ordem passa para `WAITING_APPROVAL`. O cliente pode aprovar ou recusar o orçamento.
 
-Quando o orçamento é aprovado, a ordem passa para `IN_PROGRESS` e a execução do serviço é iniciada.
+Quando o orçamento é aprovado, a ordem passa para `APPROVED`. A execução ainda não começou e depende de um comando operacional específico.
 
 Regras envolvidas:
 
 - O orçamento só pode ser aprovado quando a ordem está aguardando aprovação.
-- A aprovação registra o início da execução.
+- A aprovação não registra o início da execução.
 - Transições inválidas de status são bloqueadas pela entidade de domínio.
 
 ### 6. Execução e Finalização
+
+O funcionário inicia a execução de uma ordem aprovada. Nesse momento, a ordem passa para `IN_PROGRESS` e o sistema registra `startedAt`.
 
 Com a ordem em execução, a oficina realiza o serviço aprovado.
 
@@ -120,7 +122,7 @@ Cliente solicita atendimento
 ## Estados da Ordem de Serviço
 
 ```text
-RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIVERED
+RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> APPROVED -> IN_PROGRESS -> FINISHED -> DELIVERED
 ```
 
 ## Relação com a Implementação
@@ -133,6 +135,7 @@ RECEIVED -> IN_DIAGNOSIS -> WAITING_APPROVAL -> IN_PROGRESS -> FINISHED -> DELIV
 | Inclusão de peças e baixa de estoque | `AddStockItemToServiceOrderUseCase` e repositório Prisma transacional |
 | Envio do orçamento | `SendBudgetForApprovalUseCase` |
 | Aprovação do orçamento | `ApproveBudgetUseCase` |
+| Início da execução | `StartServiceOrderExecutionUseCase` |
 | Finalização | `FinishServiceOrderUseCase` |
 | Entrega | `DeliverServiceOrderUseCase` |
 | Regras de status | Entidade `ServiceOrder` |
