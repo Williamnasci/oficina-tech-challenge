@@ -181,6 +181,45 @@ A especificação OpenAPI / Swagger pode ser acessada localmente após iniciar a
 
 ---
 
+## Desenho da Arquitetura e Fluxo de Deploy
+
+O desenho abaixo resume os componentes da aplicação, a infraestrutura provisionada e o fluxo automatizado de entrega da Fase 2.
+
+```mermaid
+flowchart LR
+    dev[Desenvolvedor] --> repo[GitHub Repository]
+    repo --> actions[GitHub Actions]
+
+    actions --> quality[Build, Prisma Migrate e Testes]
+    actions --> docker[Docker Build e Push]
+    docker --> hub[Docker Hub]
+
+    actions --> k8sValidate[kubectl kustomize k8s]
+    actions --> deploy[Deploy to Kubernetes]
+
+    terraform[Terraform] --> kind[Cluster Kubernetes Kind]
+    deploy --> kind
+    hub --> apiDeploy[Deployment oficina-api]
+
+    kind --> apiDeploy
+    kind --> postgres[StatefulSet PostgreSQL + PVC]
+    kind --> hpa[HPA oficina-api]
+    kind --> svcApi[Service oficina-api]
+    kind --> svcDb[Service postgres]
+
+    svcApi --> api[NestJS API]
+    api --> prisma[Prisma ORM]
+    prisma --> svcDb
+    svcDb --> postgres
+
+    api --> health[/health]
+    api --> metrics[/metrics]
+    prometheus[Prometheus] --> metrics
+    grafana[Grafana] --> prometheus
+```
+
+---
+
 ## Infraestrutura Implementada
 
 ### Docker
@@ -510,7 +549,6 @@ npm run test:cov
 | Observabilidade | `docs/observability.md` |
 | Histórico da Fase 2 | `docs/phase-2-plan.md` |
 | Segurança | `docs/security-report.md` |
-| GAP Analysis Fase 2 | `docs/fase2-gap-analysis.md` |
 
 ## Observabilidade
 
