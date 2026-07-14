@@ -75,3 +75,4 @@ report.*.json
 
 # optional
 *.db
+"ignoreDeprecations": "6.0"
