@@ -209,11 +209,15 @@ flowchart LR
 
     svcApi --> api[NestJS API]
     api --> prisma[Prisma ORM]
+    api --> statusChange[Status da OS alterado]
+    statusChange --> notification[Notificacao de status]
+    notification --> webhook[Webhook externo configuravel]
+    webhook --> email[Servico de e-mail para o cliente]
     prisma --> svcDb
     svcDb --> postgres
 
-    api --> health[/health]
-    api --> metrics[/metrics]
+    api --> health[Health check]
+    api --> metrics[Metricas Prometheus]
     prometheus[Prometheus] --> metrics
     grafana[Grafana] --> prometheus
 ```
@@ -388,7 +392,19 @@ Em clusters locais sem `metrics-server`, os targets de CPU e memória podem apar
 
 ## Notificação Externa de Status
 
-As mudanças de status da ordem de serviço são publicadas por uma porta de aplicação, implementada por um adaptador HTTP. Configure `STATUS_NOTIFICATION_WEBHOOK_URL` com um receptor HTTP, como o webhook.site durante a demonstração. O adaptador envia `serviceOrderId`, `status` e `occurredAt` em JSON.
+O requisito de atualização de status da OS via ferramenta externa foi implementado por uma porta de notificação configurável. Sempre que uma mudança de status relevante ocorre, a aplicação publica um evento HTTP para a URL definida em `STATUS_NOTIFICATION_WEBHOOK_URL`.
+
+O evento enviado contém:
+
+```json
+{
+  "serviceOrderId": "id-da-ordem",
+  "status": "APPROVED",
+  "occurredAt": "2026-07-14T00:00:00.000Z"
+}
+```
+
+Durante a demonstração, essa integração pode ser validada com um receptor HTTP, como o webhook.site. Em um cenário real, a mesma URL pode apontar para uma ferramenta de automação ou serviço externo responsável por enviar e-mail ao cliente.
 
 Se a variável não estiver configurada, a notificação é ignorada. Se o serviço externo estiver indisponível, a alteração de status já persistida não é revertida.
 
