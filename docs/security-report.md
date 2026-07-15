@@ -30,33 +30,30 @@ O build da imagem Docker e os scans Trivy são executados no workflow `.github/w
 
 Os scans podem registrar vulnerabilidades transitivas relacionadas a dependências indiretas do ecossistema Node.js. Esses achados devem ser reconhecidos e acompanhados, pois podem representar risco dependendo do contexto de exposição da aplicação.
 
-### Resultado da execução local (Junho/2026)
+### Resultado da execução local (Julho/2026)
 
-**npm audit --audit-level=high**
+Execução completa com Docker ativo: `npm audit`, `npm run scan:vuln:report` (Trivy filesystem) e `npm run scan:image` (Trivy na imagem `app-local`).
 
-* HIGH detectadas: 0
-* CRITICAL detectadas: 0
+| Ferramenta | HIGH | CRITICAL | MODERATE/MEDIUM | LOW |
+|------------|------|----------|------------------|-----|
+| `npm audit` | 0 | 0 | 3 | 0 |
+| Trivy filesystem (`package-lock.json`) | 0 | 0 | 1 | 0 |
+| Trivy imagem (`app-local`) | 0 | 0 | 1 | 0 |
 
-**Trivy filesystem**
+Todas as ferramentas convergem para o mesmo achado remanescente: a dependência transitiva `@hono/node-server` (via ecossistema Prisma), classificada como MODERATE/MEDIUM.
 
-* HIGH detectadas: 0
-* CRITICAL detectadas: 0
+### Correções aplicadas nesta revisão
 
-**Vulnerabilidades moderadas remanescentes**
+Antes da correção, o cenário era: `npm audit` com 4 HIGH / 5 MODERATE / 1 LOW; Trivy filesystem com 2 HIGH / 7 MEDIUM; Trivy imagem com 4 HIGH / 12 MEDIUM. As duas ações abaixo eliminaram todos os achados HIGH sem quebrar build ou testes (63 suítes / 216 testes revalidados após cada mudança):
 
-* Dependência transitiva `@hono/node-server`
-* Introduzida pelo ecossistema Prisma
-* Correção exigiria downgrade ou alteração incompatível da versão do Prisma
-* Risco aceito para o contexto acadêmico do Tech Challenge
+1. **`npm audit fix`** (sem `--force`, sem mudança breaking): atualizou `multer`, `hono`, `form-data` e `js-yaml` para versões corrigidas. Resolveu os avisos HIGH de `multer` (negação de serviço via nomes de campo aninhados e limpeza incompleta de uploads — [GHSA-72gw-mp4g-v24j](https://github.com/advisories/GHSA-72gw-mp4g-v24j), [GHSA-3p4h-7m6x-2hcm](https://github.com/advisories/GHSA-3p4h-7m6x-2hcm)), `hono` e `form-data`, e o MODERATE de `js-yaml` ([GHSA-h67p-54hq-rp68](https://github.com/advisories/GHSA-h67p-54hq-rp68)).
+2. **Atualização do `npm` global na imagem Docker** (`Dockerfile`, estágio final: `npm install -g npm@latest` antes do `npm ci --omit=dev`): o Trivy identificou `picomatch@4.0.3` ([CVE-2026-33671](https://avd.aquasec.com/nvd/cve-2026-33671), HIGH) e `sigstore@3.1.0` ([CVE-2026-48815](https://avd.aquasec.com/nvd/cve-2026-48815), HIGH) na imagem — investigação mostrou que essas versões não são dependências do projeto (não aparecem em `npm ls` nem no `package-lock.json`), e sim pacotes vendorizados dentro do próprio npm CLI (`/usr/local/lib/node_modules/npm`) que já vem embutido na imagem base `node:22-alpine`. Atualizar o npm global para a versão mais recente (`10.9.8` → `12.0.1`) já traz esses pacotes internos corrigidos, sem qualquer alteração nas dependências da aplicação.
 
-### Detalhamento da validação
+### Achado remanescente (risco aceito)
 
-* `npm audit --audit-level=high` não encontrou vulnerabilidades HIGH ou CRITICAL.
-* `npm install` reportou 3 vulnerabilidades moderadas ligadas à dependência transitiva do Prisma (`@hono/node-server` via `@prisma/dev`).
-* A correção automática sugerida exige `npm audit fix --force` e instalaria uma versão incompatível do Prisma em relação à utilizada pelo projeto.
-* `trivy fs --scanners vuln --severity HIGH,CRITICAL --timeout 15m --no-progress /project` retornou 0 vulnerabilidades HIGH ou CRITICAL.
-
-Por esse motivo, não foi aplicado downgrade nem correção forçada sem validação específica.
+* Dependência transitiva `@hono/node-server` (via `@prisma/dev`), introduzida pelo ecossistema Prisma: vulnerabilidade MODERATE/MEDIUM de bypass de middleware por barras repetidas em `serveStatic` ([CVE-2026-39406](https://avd.aquasec.com/nvd/cve-2026-39406)).
+  * A correção exigiria `npm audit fix --force`, que instalaria `prisma@6.19.3` — downgrade incompatível com a versão de Prisma (`7.8.0`) utilizada pelo projeto.
+  * Risco aceito para o contexto acadêmico do Tech Challenge; item de acompanhamento para quando o Prisma publicar uma versão estável compatível com o `@hono/node-server` corrigido.
 
 ## Mitigações Implementadas
 
@@ -121,10 +118,10 @@ A postura de segurança implementada está adequada ao contexto acadêmico do Te
 
 As validações executadas demonstraram:
 
-* Nenhuma vulnerabilidade HIGH ou CRITICAL foi detectada pelos comandos, parâmetros e bases de vulnerabilidades utilizados na execução local de junho de 2026.
+* Nenhuma vulnerabilidade HIGH ou CRITICAL foi detectada por `npm audit`, Trivy filesystem ou Trivy imagem na execução local de julho de 2026, após as correções aplicadas (`npm audit fix` e atualização do `npm` global na imagem Docker).
 * Pipeline automatizada com verificação de segurança.
 * Hardening básico da aplicação e dos containers.
 * Monitoramento operacional da aplicação através de Prometheus e Grafana.
-* Processo de validação contínua suportado por testes automatizados e análise de vulnerabilidades.
+* Processo de validação contínua suportado por testes automatizados e análise de vulnerabilidades: build, suíte completa (63 suítes / 216 testes) e health check via Docker Compose foram revalidados após cada correção de dependência.
 
-As vulnerabilidades moderadas remanescentes são transitivas e conhecidas. Considerando o ambiente acadêmico controlado e a incompatibilidade indicada pela correção automática, elas foram registradas como risco aceito para esta entrega e permanecem como item de acompanhamento. Essa aceitação não deve ser transportada automaticamente para um ambiente produtivo.
+A única vulnerabilidade remanescente (`@hono/node-server`, MODERATE/MEDIUM) é transitiva, conhecida e sem correção não destrutiva disponível no momento — depende de uma versão do Prisma incompatível com a utilizada pelo projeto. Ela foi registrada como risco aceito para esta entrega e permanece como item de acompanhamento. Essa aceitação não deve ser transportada automaticamente para um ambiente produtivo, e a dependência deve ser reauditada periodicamente à medida que novas versões estáveis do Prisma forem publicadas.

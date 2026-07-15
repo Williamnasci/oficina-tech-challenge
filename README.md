@@ -539,14 +539,15 @@ Mitigações aplicadas na aplicação e na infraestrutura:
 - Endpoint `/metrics` sem exposição de dados sensíveis, apenas métricas técnicas agregadas.
 - Scan de dependências (`npm audit`) e de imagem/filesystem (Trivy) executados no pipeline de CI/CD, com achados registrados no log (`exit-code: '0'`, finalidade informativa nesta fase acadêmica).
 
-### Resultado da última análise (Junho/2026)
+### Resultado da última análise (Julho/2026)
 
-| Ferramenta | HIGH | CRITICAL | Observação |
-|------------|------|----------|------------|
-| `npm audit --audit-level=high` | 0 | 0 | 3 vulnerabilidades moderadas remanescentes na dependência transitiva `@hono/node-server` (via `@prisma/dev`); correção exigiria downgrade incompatível do Prisma e foi registrada como risco aceito no escopo acadêmico |
-| `trivy fs --severity HIGH,CRITICAL` | 0 | 0 | Sem achados HIGH/CRITICAL na varredura do filesystem |
+| Ferramenta | HIGH | CRITICAL | MODERATE/MEDIUM |
+|------------|------|----------|------------------|
+| `npm audit` | 0 | 0 | 3 |
+| Trivy filesystem (`package-lock.json`) | 0 | 0 | 1 |
+| Trivy imagem (`app-local`) | 0 | 0 | 1 |
 
-Nenhuma vulnerabilidade HIGH ou CRITICAL foi identificada nas dependências ou na imagem Docker na última execução. As premissas do ambiente acadêmico (credenciais de demonstração, login simplificado, scans não bloqueantes) e as recomendações para um cenário de produção — nova auditoria de dependências, política formal de tratamento de vulnerabilidades e gestão de segredos — estão detalhadas no relatório completo em `docs/security-report.md`.
+Nenhuma vulnerabilidade HIGH ou CRITICAL identificada. Duas correções reais foram aplicadas e revalidadas (build + 63 suítes / 216 testes + health check via Docker Compose) para chegar a esse resultado: `npm audit fix` (não destrutivo, corrigiu `multer`, `hono`, `form-data` e `js-yaml`) e a atualização do `npm` global no `Dockerfile` (corrigiu `picomatch`/`sigstore`, que eram vendorizados dentro do próprio npm CLI da imagem base, não dependências do projeto). Resta apenas 1 achado MODERATE/MEDIUM conhecido (`@hono/node-server`, via ecossistema Prisma), documentado como risco aceito por exigir downgrade incompatível do Prisma. O detalhamento completo — investigação de cada achado, correções aplicadas e recomendações para produção — está em `docs/security-report.md`.
 
 ## Como Executar Localmente
 
