@@ -165,6 +165,79 @@ As rotas da API estão descritas de forma interativa no Swagger e implementam os
 - **Descrição**: Retorna a listagem de ordens de serviço ativas na oficina com ordenação estrita por prioridade de status (`IN_PROGRESS` > `APPROVED` > `WAITING_APPROVAL` > `IN_DIAGNOSIS` > `RECEIVED`) e as mais antigas primeiro. Exclui logicamente ordens finalizadas (`FINISHED`) e entregues (`DELIVERED`).
 - **Resposta**: `200 OK` com a lista ordenada de OS.
 
+### Outros Payloads de Exemplo
+
+Os quatro endpoints acima cobrem o requisito obrigatório da Fase 2. Os exemplos abaixo cobrem os demais recursos do CRUD, complementando a documentação interativa do Swagger.
+
+**Cadastro de Cliente** — `POST /customers` (Bearer Token)
+```json
+{
+  "name": "John Doe",
+  "documentType": "CPF",
+  "document": "52998224725",
+  "phone": "11999999999",
+  "email": "john@example.com"
+}
+```
+
+**Cadastro de Veículo** — `POST /vehicles` (Bearer Token)
+```json
+{
+  "customerId": "18201d07-08aa-4e2f-ae0e-35a06e0e5e49",
+  "licensePlate": "ABC1234",
+  "brand": "Toyota",
+  "model": "Corolla",
+  "year": 2022
+}
+```
+
+**Cadastro de Item de Estoque** — `POST /stock-items` (Bearer Token)
+```json
+{
+  "name": "Pastilha de freio",
+  "description": "Jogo de pastilhas dianteiras",
+  "sku": "PF-001",
+  "quantity": 10,
+  "unitPrice": 200.0,
+  "isActive": true
+}
+```
+
+**Cadastro de Serviço no Catálogo** — `POST /service-catalog` (Bearer Token)
+```json
+{
+  "name": "Troca de óleo",
+  "description": "Troca de óleo do motor",
+  "price": 150.0,
+  "isActive": true
+}
+```
+
+**Registro de Diagnóstico** — `PATCH /service-orders/:id/diagnosis` (Bearer Token)
+```json
+{
+  "diagnosis": "Engine oil leak identified during inspection."
+}
+```
+
+**Inclusão de Serviço na OS** — `POST /service-orders/:id/services` (Bearer Token)
+```json
+{
+  "serviceId": "3d2c40cb-21b7-4e0e-84f5-22f5e79b6b12",
+  "quantity": 1
+}
+```
+
+**Inclusão de Peça na OS** — `POST /service-orders/:id/stock-items` (Bearer Token)
+```json
+{
+  "stockItemId": "c0f6d9b0-6d8a-4e0f-a0b0-3d4b9f6c2a11",
+  "quantity": 2
+}
+```
+
+Os demais endpoints (`GET`, `PATCH` de atualização e `DELETE` de cada recurso, além das transições de status da OS como `send-budget`, `approve-budget`, `finish`, `deliver` e `start-execution`) seguem o mesmo padrão de autenticação e validação, e estão detalhados com todos os campos, exemplos e respostas possíveis no Swagger.
+
 ### Documentação Swagger
 
 A especificação OpenAPI / Swagger pode ser acessada localmente após iniciar a aplicação:
@@ -456,13 +529,24 @@ O serviço `sonarqube` no `docker-compose.yml` permite análise local/manual em 
 
 ## Segurança
 
+Mitigações aplicadas na aplicação e na infraestrutura:
+
 - JWT obrigatório via `JWT_SECRET`.
 - Helmet aplicado globalmente.
 - CORS configurável por variável de ambiente.
-- Docker executando como usuário não root.
-- Validação de entrada com `ValidationPipe`.
-- Trivy executado no pipeline.
-- Relatório complementar em `docs/security-report.md`.
+- Docker executando como usuário não root (`USER node`), com exposição apenas das portas necessárias.
+- Validação de entrada com `ValidationPipe` (`whitelist` e `forbidNonWhitelisted`).
+- Endpoint `/metrics` sem exposição de dados sensíveis, apenas métricas técnicas agregadas.
+- Scan de dependências (`npm audit`) e de imagem/filesystem (Trivy) executados no pipeline de CI/CD, com achados registrados no log (`exit-code: '0'`, finalidade informativa nesta fase acadêmica).
+
+### Resultado da última análise (Junho/2026)
+
+| Ferramenta | HIGH | CRITICAL | Observação |
+|------------|------|----------|------------|
+| `npm audit --audit-level=high` | 0 | 0 | 3 vulnerabilidades moderadas remanescentes na dependência transitiva `@hono/node-server` (via `@prisma/dev`); correção exigiria downgrade incompatível do Prisma e foi registrada como risco aceito no escopo acadêmico |
+| `trivy fs --severity HIGH,CRITICAL` | 0 | 0 | Sem achados HIGH/CRITICAL na varredura do filesystem |
+
+Nenhuma vulnerabilidade HIGH ou CRITICAL foi identificada nas dependências ou na imagem Docker na última execução. As premissas do ambiente acadêmico (credenciais de demonstração, login simplificado, scans não bloqueantes) e as recomendações para um cenário de produção — nova auditoria de dependências, política formal de tratamento de vulnerabilidades e gestão de segredos — estão detalhadas no relatório completo em `docs/security-report.md`.
 
 ## Como Executar Localmente
 
@@ -537,18 +621,39 @@ Use o token retornado como Bearer Token no Swagger.
 
 ## Testes
 
-O projeto possui testes automatizados unitários e de integração para os fluxos principais da aplicação.
+O projeto possui testes automatizados unitários, de integração e end-to-end (e2e) para os fluxos principais da aplicação.
 
-Validação local recente com `npm test -- --runInBand`:
+### Tipos de teste
 
-- 63 suítes de teste.
-- 216 testes automatizados.
+| Tipo | Local | O que cobre |
+|------|-------|--------------|
+| Unitário | `test/unit/**` (58 suítes / 191 testes) | Entidades e value objects de domínio, casos de uso (application), controllers e repositórios Prisma isolados com mocks/stubs |
+| Integração | `test/integration/**` (5 suítes / 25 testes) | Controllers via Supertest com módulo Nest completo (`AppModule`), incluindo o fluxo transacional de orçamento e baixa de estoque de uma OS ponta a ponta contra um banco real |
+| E2E | `test/app.e2e-spec.ts` (1 suíte / 1 teste) | Bootstrap completo da aplicação e smoke test de disponibilidade (`GET /`) |
+
+### Cobertura de código
+
+Validação local recente com `npm run test:cov`:
+
+- 63 suítes / 216 testes executados via `npm test` (unitários + integração).
+- 1 suíte / 1 teste adicional via `npm run test:e2e`.
+
+| Métrica | Cobertura |
+|---------|-----------|
+| Statements | 94.43% |
+| Branches | 77.57% |
+| Functions | 95.10% |
+| Lines | 93.91% |
+
+As camadas de domínio e aplicação (entidades, value objects e casos de uso) concentram a maior cobertura, por conterem as regras de negócio centrais. A cobertura de *branches* é menor principalmente pelos ramos defensivos dos repositórios Prisma e por caminhos de erro pouco prováveis, mais custosos de simular em teste do que de tratar no código.
 
 Comandos:
 
 ```bash
-npm test
-npm run test:cov
+npm test              # testes unitários e de integração
+npm run test:cov      # testes unitários e de integração com relatório de cobertura (coverage/)
+npm run test:e2e      # teste end-to-end (bootstrap completo da aplicação)
+npm run test:integration:db   # fluxo transacional de orçamento/estoque contra banco real
 ```
 
 ## Documentação Complementar
